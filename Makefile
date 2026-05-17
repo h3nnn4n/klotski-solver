@@ -39,7 +39,7 @@ INCLUDES := -Isrc \
             -Ideps/Unity/src
 
 CFLAGS   := -Wall -Wextra -pedantic -Werror -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES) $(CFLAGS_EXTRA)
-CFLAGS_THIRDPARTY := -Wall -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES)
+CFLAGS_THIRDPARTY := -Wall -Wno-use-after-free -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES)
 CPPFLAGS := -Wall -std=c++11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES) $(CPPFLAGS_EXTRA)
 
 # Graphics-dependent C files (not used in test binaries)
