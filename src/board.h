@@ -29,6 +29,8 @@ typedef enum {
     PIECE_HORIZONTAL_I = 3,
 } piece_type_t;
 
+typedef bool (*does_piece_fit_fn)(const board_t *, uint_fast16_t, uint_fast16_t);
+
 /*
  *
  * Goal position:
@@ -66,11 +68,24 @@ board_t *build_board();
 void     destroy_board(board_t *board);
 
 // Board
-bool         is_position_free(const board_t *board, uint_fast16_t x, uint_fast16_t y);
-piece_type_t get_piece_at(const board_t *board, uint_fast16_t x, uint_fast16_t y);
-void         reset_board_to_classic(board_t *board);
-bool         is_board_valid(const board_t *board);
-bool         is_board_solved(const board_t *board);
+bool              is_position_free(const board_t *board, uint_fast16_t x, uint_fast16_t y);
+piece_type_t      get_piece_at(const board_t *board, uint_fast16_t x, uint_fast16_t y);
+void              reset_board_to_classic(board_t *board);
+bool              is_board_valid(const board_t *board);
+bool              is_board_solved(const board_t *board);
+bool              can_piece_move(const board_t *board, uint_fast16_t x, uint_fast16_t y);
+does_piece_fit_fn get_does_piece_fit_fn(piece_type_t type);
+
+board_t board_clone(const board_t *board);
+void    board_remove_big_square(board_t *board, uint_fast16_t *out_px, uint_fast16_t *out_py);
+void    board_remove_small_block(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast16_t *out_px,
+                                 uint_fast16_t *out_py);
+void    board_remove_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast16_t *out_px,
+                                uint_fast16_t *out_py);
+void    board_remove_horizontal_i(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast16_t *out_px,
+                                  uint_fast16_t *out_py);
+void    board_remove_piece(board_t *board, piece_type_t type, uint_fast16_t x, uint_fast16_t y, uint_fast16_t *out_px,
+                           uint_fast16_t *out_py);
 
 // 2x2 piece functions
 bool          is_position_free_of_big_square(const board_t *board, uint_fast16_t x, uint_fast16_t y);
