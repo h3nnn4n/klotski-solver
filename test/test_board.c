@@ -240,6 +240,28 @@ void test_horizontal_i_collides_with_small_block(void) {
     destroy_board(board);
 }
 
+// =============================================================================
+// Solved
+// =============================================================================
+
+void test_classic_board_not_solved(void) {
+    board_t *board = build_board();
+    reset_board_to_classic(board);
+
+    TEST_ASSERT_FALSE(is_board_solved(board));
+
+    destroy_board(board);
+}
+
+void test_board_solved_when_big_square_at_bottom(void) {
+    board_t *board = build_board();
+    board->big_piece = set_big_square_position(1, 3);
+
+    TEST_ASSERT_TRUE(is_board_solved(board));
+
+    destroy_board(board);
+}
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -264,6 +286,9 @@ int main(void) {
     RUN_TEST(test_vertical_i_collides_with_horizontal_i);
     RUN_TEST(test_vertical_i_collides_with_small_block);
     RUN_TEST(test_horizontal_i_collides_with_small_block);
+
+    RUN_TEST(test_classic_board_not_solved);
+    RUN_TEST(test_board_solved_when_big_square_at_bottom);
 
     return UNITY_END();
 }

@@ -77,6 +77,10 @@ static void draw_info_panel(const board_t *board) {
         return;
     }
 
+    igText("Valid: %s", is_board_valid(board) ? "YES" : "NO");
+    igText("Solved: %s", is_board_solved(board) ? "YES" : "NO");
+    igSeparator();
+
     igText("Big square (2x2):");
     {
         uint_fast16_t bx = get_x_position_from_big_square(board->big_piece);

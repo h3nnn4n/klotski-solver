@@ -70,6 +70,7 @@ bool         is_position_free(const board_t *board, uint_fast16_t x, uint_fast16
 piece_type_t get_piece_at(const board_t *board, uint_fast16_t x, uint_fast16_t y);
 void         reset_board_to_classic(board_t *board);
 bool         is_board_valid(const board_t *board);
+bool         is_board_solved(const board_t *board);
 
 // 2x2 piece functions
 bool          is_position_free_of_big_square(const board_t *board, uint_fast16_t x, uint_fast16_t y);

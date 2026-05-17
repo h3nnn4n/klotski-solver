@@ -73,6 +73,12 @@ bool is_board_valid(const board_t *board) {
     return true;
 }
 
+bool is_board_solved(const board_t *board) {
+    uint_fast16_t bx = get_x_position_from_big_square(board->big_piece);
+    uint_fast16_t by = get_y_position_from_big_square(board->big_piece);
+    return bx == 1 && by == 3;
+}
+
 bool is_position_free(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(x <= 3);
     assert(y <= 4);
