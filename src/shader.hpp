@@ -2,9 +2,6 @@
 #define SRC_SHADER_HPP_
 
 #include <glad/glad.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include <fstream>
 #include <sstream>
@@ -20,9 +17,9 @@ public:
 	void setBool(const char *name, bool value) const;
 	void setInt(const char *name, int value) const;
 	void setFloat(const char *name, float value) const;
-	void setVec3(const char *name, const glm::vec3 &value) const;
+	void setVec3(const char *name, float x, float y, float z) const;
 	void setVec3f(const char *name, float x, float y, float z) const;
-	void setMatrix4(const char *name, const glm::mat4 &mat) const;
+	void setMatrix4(const char *name, const float *mat) const;
 
 private:
 	void checkCompileErrors(unsigned int shader, const char *type);

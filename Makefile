@@ -33,13 +33,13 @@ INCLUDES := -Isrc \
             -Ideps/cimgui \
             -Ideps/cimgui/imgui \
             -Ideps/cimgui/imgui/backends \
-            -Ideps/cimplot \
             -Ideps/stb \
             -Ideps/pcg-c/include \
             -Ideps/pcg-c/extras \
             -Ideps/Unity/src
 
 CFLAGS   := -Wall -Wextra -pedantic -Werror -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES) $(CFLAGS_EXTRA)
+CFLAGS_THIRDPARTY := -Wall -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES)
 CPPFLAGS := -Wall -std=c++11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES) $(CPPFLAGS_EXTRA)
 
 # Graphics-dependent C files (not used in test binaries)
@@ -57,13 +57,11 @@ C_FILES := $(C_FILES_MAIN) $(C_FILES_TESTABLE) \
 # C++ files from src/
 CPP_FILES := $(wildcard src/*.cpp)
 
-# ImGui C++ files (cimgui + backends + cimplot)
+# ImGui C++ files (cimgui + backends - only glfw + opengl3)
 IMGUI_FILES := $(wildcard deps/cimgui/*.cpp) \
                $(wildcard deps/cimgui/imgui/*.cpp) \
                deps/cimgui/imgui/backends/imgui_impl_glfw.cpp \
-               deps/cimgui/imgui/backends/imgui_impl_opengl3.cpp \
-               $(wildcard deps/cimplot/*.cpp) \
-               $(wildcard deps/cimplot/implot/*.cpp)
+               deps/cimgui/imgui/backends/imgui_impl_opengl3.cpp
 
 SOURCES := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(IMGUI_FILES:.cpp=.o)
 OBJS := $(foreach src,$(SOURCES), $(BUILDDIR)/$(src))
@@ -113,10 +111,19 @@ $(BUILDDIR)/.pcg_full:
 	mkdir -p $(BUILDDIR)
 	touch $@
 
-# Generic C compilation rule
+# Generic C compilation rule (with pedantic)
 $(BUILDDIR)/%.o: %.c
 	mkdir -p "$(dir $@)"
 	$(CC) $(CFLAGS) -o "$@" -c "$<"
+
+# Special rule for third-party code (glad, stb) with relaxed warnings
+$(BUILDDIR)/deps/glad/src/glad.o: deps/glad/src/glad.c
+	mkdir -p "$(dir $@)"
+	$(CC) $(CFLAGS_THIRDPARTY) -o "$@" -c "$<"
+
+$(BUILDDIR)/deps/stb/%.o: deps/stb/%.c
+	mkdir -p "$(dir $@)"
+	$(CC) $(CFLAGS_THIRDPARTY) -o "$@" -c "$<"
 
 # Generic C++ compilation rule
 $(BUILDDIR)/%.o: %.cpp

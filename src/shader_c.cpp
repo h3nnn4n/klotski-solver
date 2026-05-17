@@ -24,7 +24,7 @@ void Shader_setFloat(Shader *shader, const char *name, float value) {
 }
 
 void Shader_setVec3(Shader *shader, const char *name, float *value) {
-	shader->setVec3(name, glm::vec3(value[0], value[1], value[2]));
+	shader->setVec3(name, value[0], value[1], value[2]);
 }
 
 void Shader_setVec3f(Shader *shader, const char *name, float x, float y, float z) {
@@ -32,7 +32,7 @@ void Shader_setVec3f(Shader *shader, const char *name, float x, float y, float z
 }
 
 void Shader_setMatrix4(Shader *shader, const char *name, float *mat) {
-	shader->setMatrix4(name, glm::make_mat4(mat));
+	shader->setMatrix4(name, mat);
 }
 
 void Shader_destroy(Shader *shader) {

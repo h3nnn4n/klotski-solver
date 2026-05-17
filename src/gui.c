@@ -9,7 +9,6 @@ void gui_init(GLFWwindow *win) {
 
 	gui_ctx = igCreateContext(NULL);
 	igSetCurrentContext(gui_ctx);
-	gui_io = igGetIO();
 
 	const char *glsl_version = "#version 330";
 	ImGui_ImplGlfw_InitForOpenGL(win, true);
