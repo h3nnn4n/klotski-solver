@@ -46,7 +46,7 @@ void reset_board_to_classic(board_t *board) {
     board->horizontal_blocks = set_horizontal_i_position(board->horizontal_blocks, 0, 1, 2);
 }
 
-bool is_board_valid(board_t *board) {
+bool is_board_valid(const board_t *board) {
     if (!is_small_block_position_valid(board->small_blocks))
         return false;
     if (!is_horizontal_i_position_valid(board->horizontal_blocks, board->num_horizontal))
@@ -73,7 +73,7 @@ bool is_board_valid(board_t *board) {
     return true;
 }
 
-bool is_position_free(board_t *board, uint_fast16_t x, uint_fast16_t y) {
+bool is_position_free(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(x <= 3);
     assert(y <= 4);
 
@@ -96,7 +96,7 @@ bool is_position_free(board_t *board, uint_fast16_t x, uint_fast16_t y) {
 // 2x2 functions
 // =============================================================================
 
-bool is_position_free_of_big_square(board_t *board, uint_fast16_t x, uint_fast16_t y) {
+bool is_position_free_of_big_square(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(x <= 3);
     assert(y <= 4);
 
@@ -115,7 +115,7 @@ bool is_position_free_of_big_square(board_t *board, uint_fast16_t x, uint_fast16
     return true;
 }
 
-bool does_big_square_fit_in(board_t *board, uint_fast16_t x, uint_fast16_t y) {
+bool does_big_square_fit_in(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(x <= 2);
     assert(y <= 3);
 
@@ -133,7 +133,7 @@ uint_fast16_t set_big_square_position(uint_fast16_t x, uint_fast16_t y) { return
 // 1x1 functions
 // =============================================================================
 
-bool is_position_free_of_small_block(board_t *board, uint_fast16_t x, uint_fast16_t y) {
+bool is_position_free_of_small_block(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(x <= 3);
     assert(y <= 4);
 
@@ -148,7 +148,7 @@ bool is_position_free_of_small_block(board_t *board, uint_fast16_t x, uint_fast1
     return true;
 }
 
-bool does_small_block_fit_in(board_t *board, uint_fast16_t x, uint_fast16_t y) {
+bool does_small_block_fit_in(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(x <= 3);
     assert(y <= 4);
 
@@ -250,7 +250,7 @@ bool is_vertical_i_position_valid(uint64_t pieces, uint_fast8_t num_pieces) {
     return true;
 }
 
-bool is_position_free_of_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t y) {
+bool is_position_free_of_vertical_i(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(x <= 3);
     assert(y <= 4);
 
@@ -264,7 +264,7 @@ bool is_position_free_of_vertical_i(board_t *board, uint_fast16_t x, uint_fast16
     return true;
 }
 
-bool does_vertical_i_fit_in(board_t *board, uint_fast16_t x, uint_fast16_t y) {
+bool does_vertical_i_fit_in(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(x <= 3);
     assert(y <= 3);
 
@@ -320,7 +320,7 @@ bool is_horizontal_i_position_valid(uint64_t pieces, uint_fast8_t num_pieces) {
     return true;
 }
 
-bool is_position_free_of_horizontal_i(board_t *board, uint_fast16_t x, uint_fast16_t y) {
+bool is_position_free_of_horizontal_i(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(x <= 3);
     assert(y <= 4);
 
@@ -334,7 +334,7 @@ bool is_position_free_of_horizontal_i(board_t *board, uint_fast16_t x, uint_fast
     return true;
 }
 
-bool does_horizontal_i_fit_in(board_t *board, uint_fast16_t x, uint_fast16_t y) {
+bool does_horizontal_i_fit_in(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(x <= 2);
     assert(y <= 4);
 
