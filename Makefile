@@ -42,7 +42,7 @@ INCLUDES := -Isrc \
             -Ideps/Unity/src
 
 CFLAGS   := -Wall -Wextra -pedantic -Werror -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES) $(CFLAGS_EXTRA)
-CFLAGS_THIRDPARTY := -Wall -Wno-use-after-free -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES)
+CFLAGS_THIRDPARTY := -Wall -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES)
 CPPFLAGS := -Wall -std=c++11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES) $(CPPFLAGS_EXTRA)
 
 # Graphics-dependent C files (not used in test binaries)
@@ -126,7 +126,10 @@ $(BUILDDIR)/deps/glad/src/glad.o: deps/glad/src/glad.c
 	@printf "[CC]\t$(subst $(CURDIR)/,,$@)\n"
 	@$(CC) $(CFLAGS_THIRDPARTY) -o "$@" -c "$<"
 
-$(BUILDDIR)/deps/stb/%.o: deps/stb/%.c
+STB_SRCS := deps/stb/stb.c deps/stb/stb_image.c deps/stb/stb_include.c
+STB_OBJS := $(patsubst %.c,$(BUILDDIR)/%.o,$(STB_SRCS))
+
+$(STB_OBJS): $(BUILDDIR)/deps/stb/%.o: deps/stb/%.c
 	@mkdir -p "$(dir $@)"
 	@printf "[CC]\t$(subst $(CURDIR)/,,$@)\n"
 	@$(CC) $(CFLAGS_THIRDPARTY) $(STB_CFLAGS) -o "$@" -c "$<"
