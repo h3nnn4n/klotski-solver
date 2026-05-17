@@ -52,3 +52,5 @@ bool is_position_free_big_square(board_t *board, uint_fast16_t x, uint_fast16_t 
 uint_fast16_t get_x_position_from_big_square(uint_fast16_t piece) { return piece % 3; }
 
 uint_fast16_t get_y_position_from_big_square(uint_fast16_t piece) { return piece / 3; }
+
+uint_fast16_t encode_big_square_position(uint_fast16_t x, uint_fast16_t y) { return x + y * 3; }
