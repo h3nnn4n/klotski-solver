@@ -114,36 +114,35 @@ $(BUILDDIR)/.pcg_full:
 # Generic C compilation rule (with pedantic)
 $(BUILDDIR)/%.o: %.c
 	@mkdir -p "$(dir $@)"
-	@printf "[CC]\t$@\n"
+	@printf "[CC]\t$(subst $(CURDIR)/,,$@)\n"
 	@$(CC) $(CFLAGS) -o "$@" -c "$<"
 
 # Special rule for third-party code (glad, stb) with relaxed warnings
 $(BUILDDIR)/deps/glad/src/glad.o: deps/glad/src/glad.c
 	@mkdir -p "$(dir $@)"
-	@printf "[CC]\t$@\n"
+	@printf "[CC]\t$(subst $(CURDIR)/,,$@)\n"
 	@$(CC) $(CFLAGS_THIRDPARTY) -o "$@" -c "$<"
 
 $(BUILDDIR)/deps/stb/%.o: deps/stb/%.c
 	@mkdir -p "$(dir $@)"
-	@printf "[CC]\t$@\n"
+	@printf "[CC]\t$(subst $(CURDIR)/,,$@)\n"
 	@$(CC) $(CFLAGS_THIRDPARTY) -o "$@" -c "$<"
 
 # Generic C++ compilation rule
 $(BUILDDIR)/%.o: %.cpp
 	@mkdir -p "$(dir $@)"
-	@printf "[CXX]\t$@\n"
+	@printf "[CXX]\t$(subst $(CURDIR)/,,$@)\n"
 	@$(CXX) $(CPPFLAGS) -o "$@" -c "$<"
 
 # Main binary: link via gcc with -lstdc++ for C++ runtime
 $(TARGET): $(OBJS)
-	@printf "[LD]\t$@\n"
-	@$(CC) $(LDFLAGS) -o "$@" $^ $(LIBS)
+	@printf "[LD]\t$(subst $(CURDIR)/,,$@)\n"
 
 # Test binaries: each test_*.c gets its own binary
 # Link only testable objects (no GL/imgui), pcg core, and math
 $(TEST_TARGETS): $(BUILDDIR)/test/%: $(BUILDDIR)/test/%.o $(OBJS_TESTABLE)
 	@mkdir -p "$(dir $@)"
-	@printf "[LD]\t$@\n"
+	@printf "[LD]\t$(subst $(CURDIR)/,,$@)\n"
 	@$(CC) -g -o "$@" $^ -Ldeps/pcg-c/src -lpcg_random -lm
 
 test: pcg $(TEST_TARGETS)
