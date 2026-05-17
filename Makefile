@@ -1,96 +1,165 @@
 .DEFAULT_GOAL := build
+.PHONY: all build rebuild clean test debug run glfw pcg pcg_full superclean \
+        cpplint cppcheck clang-format format
 
-TARGET = $(notdir $(CURDIR))
-BUILDDIR = $(abspath $(CURDIR)/build)
+TARGET   := $(notdir $(CURDIR))
+BUILDDIR := $(abspath $(CURDIR)/build)
 
-TEST_TARGETS := $(basename $(foreach src,$(wildcard test/test_*.c), $(BUILDDIR)/$(src)))
-TESTDIR = $(abspath $(CURDIR)/test)
-
-OPTIONS =
-
-INCLUDES = -Isrc \
-           -Ideps/Unity/src
-
-OPTIMIZATION=-O3
-
-override CFLAGS += -Wall -Wextra -pedantic -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES)
+CC  := gcc
+CXX := g++
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-  ECHOFLAGS = -e
-  LDFLAGS = -Wl,-Ldeps/Unity/build/
+	ECHOFLAGS := -e
+	LIBS := -lm -lglfw -lpthread -ldl -lstdc++ -lpcg_random -lGL
+	LDFLAGS := -Ldeps/glfw/build/src -Ldeps/pcg-c/src
 endif
 ifeq ($(UNAME_S),Darwin)
-  CFLAGS += -Wno-unused-command-line-argument
-  LDFLAGS =
+	CFLAGS_EXTRA := -Wno-unused-command-line-argument -Wno-strict-prototypes
+	CPPFLAGS_EXTRA := -Wno-unused-command-line-argument -Wno-mismatched-tags
+	LIBS := -lm -lglfw -lpthread -ldl -lstdc++ -lpcg_random -framework OpenGL
+	LDFLAGS := -Ldeps/glfw/build/src -Ldeps/pcg-c/src
 endif
 
-CC = gcc
+OPTIMIZATION := -O2
 
-C_FILES := $(wildcard src/*.c)
-C_FILES_TEST := $(wildcard test/*.c)
-C_FILES_TEST_DEPS := $(wildcard deps/Unity/src/*.c)
+OPTIONS := -DIMGUI_IMPL_API="extern \"C\"" \
+           -DIMGUI_IMPL_OPENGL_LOADER_GLAD
 
-SOURCES := $(C_FILES:.c=.o)
-SOURCES_TEST := $(C_FILES_TEST:.c=.o)
-SOURCES_TEST_DEPS := $(C_FILES_TEST_DEPS:.c=.o)
+INCLUDES := -Isrc \
+            -Ideps/glad/include \
+            -Ideps/glfw/include \
+            -Ideps/cglm/include \
+            -Ideps/cimgui \
+            -Ideps/cimgui/imgui \
+            -Ideps/cimgui/imgui/backends \
+            -Ideps/cimplot \
+            -Ideps/stb \
+            -Ideps/pcg-c/include \
+            -Ideps/pcg-c/extras \
+            -Ideps/Unity/src
+
+CFLAGS   := -Wall -Wextra -pedantic -Werror -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES) $(CFLAGS_EXTRA)
+CPPFLAGS := -Wall -std=c++11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES) $(CPPFLAGS_EXTRA)
+
+# Graphics-dependent C files (not used in test binaries)
+C_FILES_MAIN := src/main.c src/gui.c
+
+# Headless-testable C files (no GL/GLFW headers)
+C_FILES_TESTABLE := src/sample.c src/utils.c
+
+# All C files for main binary
+C_FILES := $(C_FILES_MAIN) $(C_FILES_TESTABLE) \
+           $(wildcard deps/pcg-c/extras/*.c) \
+           deps/glad/src/glad.c \
+           $(wildcard deps/stb/*.c)
+
+# C++ files from src/
+CPP_FILES := $(wildcard src/*.cpp)
+
+# ImGui C++ files (cimgui + backends + cimplot)
+IMGUI_FILES := $(wildcard deps/cimgui/*.cpp) \
+               $(wildcard deps/cimgui/imgui/*.cpp) \
+               deps/cimgui/imgui/backends/imgui_impl_glfw.cpp \
+               deps/cimgui/imgui/backends/imgui_impl_opengl3.cpp \
+               $(wildcard deps/cimplot/*.cpp) \
+               $(wildcard deps/cimplot/implot/*.cpp)
+
+SOURCES := $(C_FILES:.c=.o) $(CPP_FILES:.cpp=.o) $(IMGUI_FILES:.cpp=.o)
 OBJS := $(foreach src,$(SOURCES), $(BUILDDIR)/$(src))
-OBJS_TEST := $(foreach src,$(SOURCES_TEST), $(BUILDDIR)/$(src))
-OBJS_NO_MAIN := $(filter-out %main.o, $(OBJS)) \
-                $(C_FILES_TEST_DEPS)
 
-.PHONY: test
-.PHONY: clean
+# Test object groups: testable C files + pcg extras + Unity src
+C_TEST_DEPS := $(wildcard deps/pcg-c/extras/*.c) $(wildcard deps/Unity/src/*.c)
+OBJS_TESTABLE := $(foreach src,$(C_FILES_TESTABLE:.c=.o), $(BUILDDIR)/$(src)) \
+                 $(foreach src,$(C_TEST_DEPS:.c=.o), $(BUILDDIR)/$(src))
+
+TEST_SRCS := $(wildcard test/test_*.c)
+TEST_TARGETS := $(patsubst test/%.c,$(BUILDDIR)/test/%,$(TEST_SRCS))
 
 all: build
 
-build: $(TARGET)
+build: glfw pcg pcg_full $(TARGET)
 
-debug: debug_prepare build
+debug: OPTIMIZATION := -g -pg -O0
+debug: build
 
-debug_prepare:
-	$(eval OPTIMIZATION=-g -pg -O0)
-
-gperftools: gperftools_prepare build
-
-gperftools_prepare:
-	$(eval OPTIMIZATION=-DWITHGPERFTOOLS -lprofiler -ltcmalloc -g -pg -O2 -DNDEBUG -fno-inline-functions -fno-inline-functions-called-once -fno-optimize-sibling-calls)
-
-callgrind: callgrind_prepare build
-
-callgrind_prepare:
-	$(eval OPTIMIZATION=-g -O2 -DNDEBUG -fno-inline-functions -fno-inline-functions-called-once -fno-optimize-sibling-calls -fno-default-inline -fno-inline)
-
-rebuild: clean $(TARGET)
-
-retest: clean test
+rebuild: clean build
 
 run: $(TARGET)
-	$(CURDIR)/$(TARGET)
+	LD_LIBRARY_PATH=deps/glfw/build/src $(CURDIR)/$(TARGET)
 
-gdb: clean debug_prepare $(TARGET)
-	gdb $(CURDIR)/$(TARGET)
+# GLFW cmake build (stamp file)
+glfw: $(BUILDDIR)/.glfw_built
 
-test: $(TEST_TARGETS)
-	$(foreach var,$(TEST_TARGETS),$(var) && ) echo $(ECHOFLAGS) "Everything in order"
+$(BUILDDIR)/.glfw_built:
+	cmake -B deps/glfw/build -S deps/glfw -DBUILD_SHARED_LIBS=ON
+	cmake --build deps/glfw/build -- -j$$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)
+	mkdir -p $(BUILDDIR)
+	touch $@
 
-$(TEST_TARGETS): $(OBJS_NO_MAIN) $(OBJS_TEST)
-	@echo $(ECHOFLAGS) "[LD]\t$@"
-	@$(CC) -o "$@" $@.o $(OBJS_NO_MAIN) $(LDFLAGS) $(OPTIMIZATION)
+# PCG core library
+pcg: $(BUILDDIR)/.pcg_core
 
+$(BUILDDIR)/.pcg_core:
+	$(MAKE) -s -C deps/pcg-c/src/
+	mkdir -p $(BUILDDIR)
+	touch $@
+
+# PCG full build (extras)
+pcg_full: $(BUILDDIR)/.pcg_full
+
+$(BUILDDIR)/.pcg_full:
+	$(MAKE) -s -C deps/pcg-c/
+	mkdir -p $(BUILDDIR)
+	touch $@
+
+# Generic C compilation rule
 $(BUILDDIR)/%.o: %.c
-	@echo $(ECHOFLAGS) "[CC]\t$<"
-	@mkdir -p "$(dir $@)"
-	@$(CC) $(CFLAGS) -o "$@" -c "$<"
+	mkdir -p "$(dir $@)"
+	$(CC) $(CFLAGS) -o "$@" -c "$<"
 
+# Generic C++ compilation rule
+$(BUILDDIR)/%.o: %.cpp
+	mkdir -p "$(dir $@)"
+	$(CXX) $(CPPFLAGS) -o "$@" -c "$<"
+
+# Main binary: link via gcc with -lstdc++ for C++ runtime
 $(TARGET): $(OBJS)
-	@echo $(ECHOFLAGS) "[LD]\t$@"
-	@$(CC) -o "$@" $^ $(LDFLAGS) $(OPTIMIZATION)
+	$(CC) $(LDFLAGS) -o "$@" $^ $(LIBS)
+
+# Test binaries: each test_*.c gets its own binary
+# Link only testable objects (no GL/imgui), pcg core, and math
+$(TEST_TARGETS): $(BUILDDIR)/test/%: $(BUILDDIR)/test/%.o $(OBJS_TESTABLE)
+	mkdir -p "$(dir $@)"
+	$(CC) -g -o "$@" $^ -Ldeps/pcg-c/src -lpcg_random -lm
+
+test: pcg $(TEST_TARGETS)
+	@for t in $(TEST_TARGETS); do \
+		echo $(ECHOFLAGS) "[RUN]\t$$t"; \
+		$$t || exit $$?; \
+	done
+	@echo "All tests passed."
 
 clean:
-	@echo Cleaning...
-	@rm -rf "$(BUILDDIR)/src/"
-	@rm -rf "$(BUILDDIR)/test/"
-	@rm -rf "$(BUILDDIR)/deps/"
-	@rm -f "$(TARGET).o"
-	@rm -f "$(TARGET)"
+	rm -rf "$(BUILDDIR)/src" "$(BUILDDIR)/test" "$(BUILDDIR)/deps"
+	rm -f "$(TARGET)"
+
+superclean: clean
+	rm -rf "$(BUILDDIR)"
+	$(MAKE) -C deps/pcg-c/src/ clean 2>/dev/null || true
+	$(MAKE) -C deps/pcg-c/ clean 2>/dev/null || true
+	rm -rf deps/glfw/build
+
+cpplint:
+	cpplint --filter=-build/include_subdir,-readability/nolint,-whitespace/line_length,-whitespace/comments,-readability/casting,-build/header_guard,-runtime/arrays src/*.c
+
+cppcheck:
+	cppcheck --enable=all --suppressions-list=.cppcheck.suppressions --std=c11 --language=c --error-exitcode=1 src/*.c
+
+clang-format:
+	./format.sh
+
+format:
+	./format.sh
+
+.PRECIOUS: $(BUILDDIR)/%.o

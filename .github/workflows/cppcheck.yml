@@ -4,28 +4,36 @@ on: push
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
           submodules: true
 
-      - name: Install deps
+      - name: Install system deps
         run: |
           sudo apt-get update
-          sudo apt-get -y -qq install curl
-          sudo apt-get -y -qq install clang-tidy cmake jq clang cppcheck
-          python -m pip install scan-build
+          sudo apt-get install -y cmake libgl-dev libxrandr-dev libxinerama-dev \
+            libxcursor-dev libxi-dev clang cppcheck
 
-      - name: Update Path
-        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Update compile database
+      - name: Build GLFW
         run: |
-          make clean
-          intercept-build make
+          cmake -B deps/glfw/build -S deps/glfw -DBUILD_SHARED_LIBS=ON
+          cmake --build deps/glfw/build
 
-      - name: run cppcheck
-        run: cppcheck --enable=all --suppress=missingIncludeSystem --std=c11 --language=c --error-exitcode=1 src/*.c
+      - name: Build PCG
+        run: make pcg pcg_full
+
+      - name: Run cppcheck
+        run: |
+          cppcheck \
+            --enable=all \
+            --suppressions-list=.cppcheck.suppressions \
+            --suppress=unusedFunction \
+            --suppress=missingIncludeSystem \
+            --std=c11 \
+            --language=c \
+            --error-exitcode=1 \
+            src/*.c

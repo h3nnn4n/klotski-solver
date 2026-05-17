@@ -1,118 +1,88 @@
-/*
- * Copyright <2021> <Renan S Silva, aka h3nnn4n>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
- * of the Software, and to permit persons to whom the Software is furnished to do
- * so.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
- */
-
-#include <getopt.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <time.h>
 
-#include "config.h"
-#include "sum.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
-static config_t *config;
+#include "shader_c.h"
+#include "gui.h"
+#include "sample.h"
 
-int main(int argc, char **argv) {
-    init_config();
-    config = get_config();
+static void error_callback(int error, const char *description) {
+	fprintf(stderr, "GLFW error %d: %s\n", error, description);
+}
 
-    struct option long_options[] = {{"verbose", no_argument, &config->verbose, 1},
-                                    {"quiet", no_argument, &config->verbose, 0},
-                                    {"fail-on-match", required_argument, 0, 'f'},
-                                    {"say-hi", optional_argument, 0, 'h'},
-                                    {0, 0, 0, 0}};
+static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+		glfwSetWindowShouldClose(window, GLFW_TRUE);
+	}
+}
 
-    int option_index = 0;
+int main(void) {
+	glfwSetErrorCallback(error_callback);
 
-    while (1) {
-        int c;
+	if (!glfwInit()) {
+		fprintf(stderr, "Failed to initialize GLFW\n");
+		return 1;
+	}
 
-        c = getopt_long(argc, argv, "vqh::", long_options, &option_index);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
-        if (c == -1)
-            break;
+	GLFWwindow *window = glfwCreateWindow(1280, 720, "C Template", NULL, NULL);
+	if (!window) {
+		fprintf(stderr, "Failed to create GLFW window\n");
+		glfwTerminate();
+		return 1;
+	}
 
-        switch (c) {
-            case 0:
-                if (long_options[option_index].flag != 0)
-                    break;
+	glfwMakeContextCurrent(window);
+	glfwSwapInterval(1);
+	glfwSetKeyCallback(window, key_callback);
 
-                printf("option %s", long_options[option_index].name);
-                if (optarg)
-                    printf(" with arg %s", optarg);
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+		fprintf(stderr, "Failed to load OpenGL functions\n");
+		glfwTerminate();
+		return 1;
+	}
 
-                printf("\n");
-                break;
+	glViewport(0, 0, 1280, 720);
 
-            case 'f': {
-                config->fail_on_match = 1;
+	gui_init(window);
 
-                if (optarg != NULL) {
-                    config->fail_on_match_value = atoi(optarg);
-                } else {
-                    fprintf(stderr, "Argument is necessary for this option\n");
+	Sample sample;
+	uint64_t seed = (uint64_t)time(NULL);
+	sample_init(&sample, seed, 1u);
 
-                    return EXIT_FAILURE;
-                }
-            } break;
+	Shader *shader = newShader("shaders/main.vert", "shaders/main.frag", NULL);
+	if (!shader) {
+		fprintf(stderr, "Failed to load shader\n");
+		gui_terminate();
+		glfwTerminate();
+		return 1;
+	}
 
-            case 'h': {
-                config->say_hi = 1;
+	while (!glfwWindowShouldClose(window)) {
+		glfwPollEvents();
 
-                if (optarg != NULL) {
-                    config->name = malloc(strlen(optarg) * sizeof(char));
-                    memcpy(config->name, optarg, sizeof(char) * (strlen(optarg)));
-                }
-            } break;
+		sample_tick(&sample);
 
-            case '?':
-                /* getopt_long already printed an error message. */
-                break;
+		glClearColor(sample.color[0], sample.color[1], sample.color[2], 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
 
-            default:
-                printf("%c %d %x", c, c, c);
-                abort();
-                break;
-        }
-    }
+		Shader_use(shader);
+		Shader_setVec3f(shader, "u_color", sample.color[0], sample.color[1], sample.color[2]);
 
-    if (config->say_hi) {
-        option_index--;
-        if (config->name != NULL) {
-            printf("hi %s\n", config->name);
-        } else {
-            printf("hi\n");
-        }
-    }
+		gui_render(&sample);
 
-    // TODO(h3nnn4n): Ensure argv is long enough
-    int x = atoi(argv[option_index++]);
-    int y = atoi(argv[option_index++]);
+		glfwSwapBuffers(window);
+	}
 
-    int result = sum(x, y);
+	Shader_destroy(shader);
+	gui_terminate();
+	glfwTerminate();
 
-    if (config->fail_on_match && config->fail_on_match_value == result) {
-        if (config->verbose)
-            fprintf(stderr, "result matched %d.\naborting!\n", result);
-
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
+	return 0;
 }

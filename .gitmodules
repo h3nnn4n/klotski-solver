@@ -1,6 +1,21 @@
 [submodule "deps/Unity"]
 	path = deps/Unity
 	url = https://github.com/ThrowTheSwitch/Unity
+[submodule "deps/pcg-c"]
+	path = deps/pcg-c
+	url = https://github.com/imneme/pcg-c
+[submodule "deps/cimgui"]
+	path = deps/cimgui
+	url = https://github.com/cimgui/cimgui
+[submodule "deps/glfw"]
+	path = deps/glfw
+	url = https://github.com/glfw/glfw
+[submodule "deps/cglm"]
+	path = deps/cglm
+	url = https://github.com/recp/cglm
+[submodule "deps/cimplot"]
+	path = deps/cimplot
+	url = https://github.com/cimgui/cimplot
 [submodule "deps/clang-format-hooks"]
 	path = deps/clang-format-hooks
 	url = https://github.com/barisione/clang-format-hooks

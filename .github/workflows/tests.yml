@@ -5,19 +5,18 @@ on: push
 jobs:
   run-tests:
     runs-on: ${{ matrix.os }}
-
     strategy:
       matrix:
-        os: [ubuntu-20.04, macos-10.15]
+        os: [ubuntu-latest, macos-latest]
 
     steps:
-      - uses: actions/checkout@master
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 1
           submodules: true
 
-      - name: Build
-        run: make
+      - name: Build PCG (tests depend on it)
+        run: make pcg
 
       - name: Run Tests
         run: make test
