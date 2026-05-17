@@ -38,6 +38,129 @@ void test_classic_board_is_valid(void) {
     destroy_board(board);
 }
 
+void test_duplicate_small_blocks_invalid(void) {
+    board_t *board = build_board();
+    reset_board_to_classic(board);
+
+    board->small_blocks = set_small_block_position(board->small_blocks, 0, 1, 3);
+
+    TEST_ASSERT_FALSE(is_board_valid(board));
+
+    destroy_board(board);
+}
+
+void test_overlapping_vertical_i_invalid(void) {
+    board_t *board = build_board();
+    reset_board_to_classic(board);
+
+    board->vertical_blocks = set_vertical_i_position(board->vertical_blocks, 3, 3, 0);
+
+    TEST_ASSERT_FALSE(is_board_valid(board));
+
+    destroy_board(board);
+}
+
+void test_overlapping_horizontal_i_invalid(void) {
+    board_t *board = build_board();
+    reset_board_to_classic(board);
+
+    board->num_horizontal = 2;
+    board->horizontal_blocks = set_horizontal_i_position(board->horizontal_blocks, 1, 1, 2);
+
+    TEST_ASSERT_FALSE(is_board_valid(board));
+
+    destroy_board(board);
+}
+
+void test_small_block_on_big_square_invalid(void) {
+    board_t *board = build_board();
+    reset_board_to_classic(board);
+
+    board->small_blocks = set_small_block_position(board->small_blocks, 0, 1, 0);
+
+    TEST_ASSERT_FALSE(is_board_valid(board));
+
+    destroy_board(board);
+}
+
+void test_small_block_on_vertical_i_invalid(void) {
+    board_t *board = build_board();
+    reset_board_to_classic(board);
+
+    board->small_blocks = set_small_block_position(board->small_blocks, 0, 0, 0);
+
+    TEST_ASSERT_FALSE(is_board_valid(board));
+
+    destroy_board(board);
+}
+
+void test_small_block_on_horizontal_i_invalid(void) {
+    board_t *board = build_board();
+    reset_board_to_classic(board);
+
+    board->small_blocks = set_small_block_position(board->small_blocks, 0, 1, 2);
+
+    TEST_ASSERT_FALSE(is_board_valid(board));
+
+    destroy_board(board);
+}
+
+void test_vertical_i_on_big_square_invalid(void) {
+    board_t *board = build_board();
+    reset_board_to_classic(board);
+
+    board->vertical_blocks = set_vertical_i_position(board->vertical_blocks, 0, 1, 0);
+
+    TEST_ASSERT_FALSE(is_board_valid(board));
+
+    destroy_board(board);
+}
+
+void test_horizontal_i_on_big_square_invalid(void) {
+    board_t *board = build_board();
+    reset_board_to_classic(board);
+
+    board->horizontal_blocks = set_horizontal_i_position(board->horizontal_blocks, 0, 0, 0);
+
+    TEST_ASSERT_FALSE(is_board_valid(board));
+
+    destroy_board(board);
+}
+
+void test_vertical_i_on_horizontal_i_invalid(void) {
+    board_t *board = build_board();
+    reset_board_to_classic(board);
+
+    board->vertical_blocks = set_vertical_i_position(board->vertical_blocks, 0, 1, 2);
+
+    TEST_ASSERT_FALSE(is_board_valid(board));
+
+    destroy_board(board);
+}
+
+void test_too_few_i_pieces_invalid(void) {
+    board_t *board = build_board();
+    reset_board_to_classic(board);
+
+    board->num_vertical = 3;
+
+    TEST_ASSERT_FALSE(is_board_valid(board));
+
+    destroy_board(board);
+}
+
+void test_too_many_i_pieces_invalid(void) {
+    board_t *board = build_board();
+    reset_board_to_classic(board);
+
+    board->num_horizontal = 2;
+    board->horizontal_blocks = set_horizontal_i_position(board->horizontal_blocks, 1, 1, 4);
+
+    TEST_ASSERT_FALSE(is_board_valid(board));
+
+    destroy_board(board);
+}
+
 // =============================================================================
 // Big square piece (2x2)
 // =============================================================================
@@ -507,6 +630,17 @@ int main(void) {
     // Board
     RUN_TEST(test_is_position_free);
     RUN_TEST(test_classic_board_is_valid);
+    RUN_TEST(test_duplicate_small_blocks_invalid);
+    RUN_TEST(test_overlapping_vertical_i_invalid);
+    RUN_TEST(test_overlapping_horizontal_i_invalid);
+    RUN_TEST(test_small_block_on_big_square_invalid);
+    RUN_TEST(test_small_block_on_vertical_i_invalid);
+    RUN_TEST(test_small_block_on_horizontal_i_invalid);
+    RUN_TEST(test_vertical_i_on_big_square_invalid);
+    RUN_TEST(test_horizontal_i_on_big_square_invalid);
+    RUN_TEST(test_vertical_i_on_horizontal_i_invalid);
+    RUN_TEST(test_too_few_i_pieces_invalid);
+    RUN_TEST(test_too_many_i_pieces_invalid);
 
     // Big square piece (2x2)
     RUN_TEST(test_is_position_free_of_big_square);

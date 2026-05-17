@@ -54,6 +54,22 @@ bool is_board_valid(board_t *board) {
     if (!is_vertical_i_position_valid(board->vertical_blocks, board->num_vertical))
         return false;
 
+    if (board->num_horizontal + board->num_vertical != 5)
+        return false;
+
+    uint_fast16_t num_empty_cells = 0;
+
+    for (int x = 0; x < 4; x++) {
+        for (int y = 0; y < 5; y++) {
+            if (is_position_free(board, x, y)) {
+                num_empty_cells++;
+            }
+        }
+    }
+
+    if (num_empty_cells != 2)
+        return false;
+
     return true;
 }
 
