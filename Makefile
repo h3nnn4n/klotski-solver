@@ -2,7 +2,7 @@
 .PHONY: all build rebuild clean distclean test debug run glfw pcg pcg_full superclean \
         cpplint cppcheck clang-format format
 
-PROJECT_NAME := C_Template
+PROJECT_NAME := klotski
 TARGET      := bin/$(PROJECT_NAME)
 BUILDDIR    := $(abspath $(CURDIR)/build)
 
