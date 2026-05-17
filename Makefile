@@ -143,10 +143,11 @@ $(TARGET): $(OBJS)
 
 # Test binaries: each test_*.c gets its own binary
 # Link only testable objects (no GL/imgui), pcg core, and math
+$(TEST_TARGETS): pcg
 $(TEST_TARGETS): $(BUILDDIR)/test/%: $(BUILDDIR)/test/%.o $(OBJS_TESTABLE)
 	@mkdir -p "$(dir $@)"
 	@printf "[LD]\t$(subst $(CURDIR)/,,$@)\n"
-	@$(CC) -g -o "$@" $^ -Ldeps/pcg-c/src -lpcg_random -lm
+	@$(CC) -g -o "$@" $(filter-out pcg,$^) -Ldeps/pcg-c/src -lpcg_random -lm
 
 test: pcg $(TEST_TARGETS)
 	@for t in $(TEST_TARGETS); do \
