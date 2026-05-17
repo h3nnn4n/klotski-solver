@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := build
-.PHONY: all build rebuild clean test debug run glfw pcg pcg_full superclean \
+.PHONY: all build rebuild clean distclean test debug run glfw pcg pcg_full superclean \
         cpplint cppcheck clang-format format
 
 PROJECT_NAME := C_Template
@@ -156,15 +156,28 @@ test: pcg $(TEST_TARGETS)
 	@echo "All tests passed."
 
 clean:
-	@printf "[CLEAN]\tbuild/\n"
-	@rm -rf "$(BUILDDIR)/src" "$(BUILDDIR)/test" "$(BUILDDIR)/deps"
+	@printf "[CLEAN]\tsrc/\n"
+	@rm -rf "$(BUILDDIR)/src"
+	@printf "[CLEAN]\ttest/\n"
+	@rm -rf "$(BUILDDIR)/test"
+	@printf "[CLEAN]\tbin/\n"
 	@rm -rf "bin"
 
-superclean: clean
-	@printf "[CLEAN]\tdeps/\n"
+distclean:
+	@printf "[CLEAN]\tbuild/\n"
 	@rm -rf "$(BUILDDIR)"
+	@rm -rf "bin"
+
+superclean:
+	@printf "[CLEAN]\tbuild/\n"
+	@rm -rf "$(BUILDDIR)"
+	@printf "[CLEAN]\tbin/\n"
+	@rm -rf "bin"
+	@printf "[CLEAN]\tdeps/pcg-c/src/\n"
 	@$(MAKE) -s -C deps/pcg-c/src/ clean 2>/dev/null || true
+	@printf "[CLEAN]\tdeps/pcg-c/\n"
 	@$(MAKE) -s -C deps/pcg-c/ clean 2>/dev/null || true
+	@printf "[CLEAN]\tdeps/glfw/\n"
 	@rm -rf deps/glfw/build
 
 cpplint:
