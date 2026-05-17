@@ -30,16 +30,16 @@ OPTIONS := -DIMGUI_IMPL_API="extern \"C\"" \
            -DIMGUI_IMPL_OPENGL_LOADER_GLAD
 
 INCLUDES := -Isrc \
-            -Ideps/glad/include \
-            -Ideps/glfw/include \
-            -Ideps/cglm/include \
-            -Ideps/cimgui \
-            -Ideps/cimgui/imgui \
-            -Ideps/cimgui/imgui/backends \
-            -Ideps/stb \
-            -Ideps/pcg-c/include \
-            -Ideps/pcg-c/extras \
-            -Ideps/Unity/src
+            -I$(CURDIR)/deps/glad/include \
+            -I$(CURDIR)/deps/glfw/include \
+            -I$(CURDIR)/deps/cglm/include \
+            -I$(CURDIR)/deps/cimgui \
+            -I$(CURDIR)/deps/cimgui/imgui \
+            -I$(CURDIR)/deps/cimgui/imgui/backends \
+            -I$(CURDIR)/deps/stb \
+            -I$(CURDIR)/deps/pcg-c/include \
+            -I$(CURDIR)/deps/pcg-c/extras \
+            -I$(CURDIR)/deps/Unity/src
 
 CFLAGS   := -Wall -Wextra -pedantic -Werror -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES) $(CFLAGS_EXTRA)
 CFLAGS_THIRDPARTY := -Wall -std=gnu11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES)
