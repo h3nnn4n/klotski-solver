@@ -29,12 +29,32 @@ void destroy_board(board_t *board) {
 }
 
 void reset_board_to_classic(board_t *board) {
-    board->small_blocks = set_small_block_position(board->small_blocks, 0, 4);
-    board->small_blocks = set_small_block_position(board->small_blocks, 1, 3);
-    board->small_blocks = set_small_block_position(board->small_blocks, 2, 3);
-    board->small_blocks = set_small_block_position(board->small_blocks, 3, 4);
+    board->small_blocks = set_small_block_position(board->small_blocks, 0, 0, 4);
+    board->small_blocks = set_small_block_position(board->small_blocks, 1, 1, 3);
+    board->small_blocks = set_small_block_position(board->small_blocks, 2, 2, 3);
+    board->small_blocks = set_small_block_position(board->small_blocks, 3, 3, 4);
 
-    board->big_piece = set_
+    board->big_piece = set_big_square_position(1, 0);
+
+    board->num_vertical    = 4;
+    board->vertical_blocks = set_vertical_i_position(board->vertical_blocks, 0, 0, 0);
+    board->vertical_blocks = set_vertical_i_position(board->vertical_blocks, 1, 0, 2);
+    board->vertical_blocks = set_vertical_i_position(board->vertical_blocks, 2, 3, 0);
+    board->vertical_blocks = set_vertical_i_position(board->vertical_blocks, 3, 3, 2);
+
+    board->num_horizontal    = 1;
+    board->horizontal_blocks = set_horizontal_i_position(board->horizontal_blocks, 0, 1, 2);
+}
+
+bool is_board_valid(board_t *board) {
+    if (!is_small_block_position_valid(board->small_blocks) return false;
+    if (!is_horizontal_i_position_valid(board->vertical_blocks, board->num_horizontal) return false;
+    if (!is_vertical_i_position_valid(board->vertical_blocks, board->num_vertical) return false;
+
+    // TODO: Check overlaps
+    // Lazy way is to ensure only two empty cells
+
+    return true;
 }
 
 bool is_position_free(board_t *board, uint_fast16_t x, uint_fast16_t y) {

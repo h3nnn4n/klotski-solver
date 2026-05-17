@@ -15,11 +15,24 @@ void test_build_and_destroy(void) {
     destroy_board(board);
 }
 
+// =============================================================================
+// Board
+// =============================================================================
+
 void test_is_position_free(void) {
     board_t *board = build_board();
-    board->big_piece = 0;
 
     TEST_ASSERT_TRUE(is_position_free(board, 0, 0));
+
+    destroy_board(board);
+}
+
+void test_classic_board_is_valid(void) {
+    board_t *board = build_board();
+
+    reset_board_to_classic(board);
+
+    TEST_ASSERT_TRUE(is_board_valid(board));
 
     destroy_board(board);
 }
@@ -522,6 +535,7 @@ int main(void) {
 
     // Board
     RUN_TEST(test_is_position_free);
+    RUN_TEST(test_classic_board_is_valid);
 
     // Big square piece (2x2)
     RUN_TEST(test_is_position_free_big_square);
