@@ -47,9 +47,12 @@ void reset_board_to_classic(board_t *board) {
 }
 
 bool is_board_valid(board_t *board) {
-    if (!is_small_block_position_valid(board->small_blocks) return false;
-    if (!is_horizontal_i_position_valid(board->vertical_blocks, board->num_horizontal) return false;
-    if (!is_vertical_i_position_valid(board->vertical_blocks, board->num_vertical) return false;
+    if (!is_small_block_position_valid(board->small_blocks))
+        return false;
+    if (!is_horizontal_i_position_valid(board->horizontal_blocks, board->num_horizontal))
+        return false;
+    if (!is_vertical_i_position_valid(board->vertical_blocks, board->num_vertical))
+        return false;
 
     // TODO: Check overlaps
     // Lazy way is to ensure only two empty cells
@@ -58,16 +61,19 @@ bool is_board_valid(board_t *board) {
 }
 
 bool is_position_free(board_t *board, uint_fast16_t x, uint_fast16_t y) {
-    assert(x <= 4);
-    assert(y <= 5);
+    assert(x <= 3);
+    assert(y <= 4);
 
     if (!is_position_free_big_square(board, x, y))
         return false;
+
     if (!is_position_free_small_block(board, x, y))
         return false;
-    if (!is_position_free_horizontal_i(board, x, y))
+
+    if (!is_free_of_vertical_i(board, x, y))
         return false;
-    if (!is_position_free_vertical_i(board, x, y))
+
+    if (!is_free_of_horizontal_i(board, x, y))
         return false;
 
     return true;
@@ -106,19 +112,19 @@ uint_fast16_t set_big_square_position(uint_fast16_t x, uint_fast16_t y) { return
 // 1x1 functions
 // =============================================================================
 
-bool is_position_free_small_block(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast8_t index) {
+bool is_position_free_small_block(board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(x <= 3);
     assert(y <= 4);
-    assert(index < 4);
 
-    if (!is_position_free_big_square(board, x, y))
-        return false;
+    for (uint_fast8_t i = 0; i < 4; i++) {
+        uint64_t      piece_pos = (board->small_blocks >> (i * 5)) & 0x1F;
+        uint_fast16_t piece_x   = piece_pos % 4;
+        uint_fast16_t piece_y   = piece_pos / 4;
+        if (x == piece_x && y == piece_y)
+            return false;
+    }
 
-    uint64_t      piece_pos = (board->small_blocks >> (index * 5)) & 0x1F;
-    uint_fast16_t piece_x   = piece_pos % 4;
-    uint_fast16_t piece_y   = piece_pos / 4;
-
-    return !(x == piece_x && y == piece_y);
+    return true;
 }
 
 uint_fast16_t get_x_position_from_small_block(uint64_t pieces, uint_fast8_t index) {
@@ -171,12 +177,6 @@ bool is_small_block_position_valid(uint64_t pieces) {
 // Vertical I-piece (2x1) functions
 // =============================================================================
 
-uint64_t set_vertical_i_position(uint_fast16_t x, uint_fast16_t y) {
-    assert(x <= 3);
-    assert(y <= 3);
-    return x + y * 4;
-}
-
 uint_fast16_t get_x_position_from_vertical_i(uint64_t pieces, uint_fast8_t index) {
     assert(index < 10);
     uint64_t pos = (pieces >> (index * 4)) & 0xF;
@@ -222,6 +222,20 @@ bool is_vertical_i_position_valid(uint64_t pieces, uint_fast8_t num_pieces) {
     return true;
 }
 
+bool is_free_of_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t y) {
+    assert(x <= 3);
+    assert(y <= 4);
+
+    for (uint_fast8_t i = 0; i < board->num_vertical; i++) {
+        uint_fast16_t vx = get_x_position_from_vertical_i(board->vertical_blocks, i);
+        uint_fast16_t vy = get_y_position_from_vertical_i(board->vertical_blocks, i);
+        if (x == vx && (y == vy || y == vy + 1))
+            return false;
+    }
+
+    return true;
+}
+
 bool is_position_free_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast8_t index) {
     assert(x <= 3);
     assert(y <= 3);
@@ -236,12 +250,10 @@ bool is_position_free_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t 
         return false;
 
     // Check collision with small blocks
-    for (uint_fast8_t i = 0; i < 4; i++) {
-        uint_fast16_t sx = get_x_position_from_small_block(board->small_blocks, i);
-        uint_fast16_t sy = get_y_position_from_small_block(board->small_blocks, i);
-        if (x == sx && (y == sy || y + 1 == sy))
-            return false;
-    }
+    if (!is_position_free_small_block(board, x, y))
+        return false;
+    if (!is_position_free_small_block(board, x, y + 1))
+        return false;
 
     // Check collision with other vertical I pieces (except self)
     for (uint_fast8_t i = 0; i < board->num_vertical; i++) {
@@ -273,12 +285,6 @@ bool is_position_free_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t 
 // =============================================================================
 // Horizontal I-piece (1x2) functions
 // =============================================================================
-
-uint64_t set_horizontal_i_position(uint_fast16_t x, uint_fast16_t y) {
-    assert(x <= 2);
-    assert(y <= 4);
-    return x + y * 3;
-}
 
 uint_fast16_t get_x_position_from_horizontal_i(uint64_t pieces, uint_fast8_t index) {
     assert(index < 10);
@@ -325,6 +331,20 @@ bool is_horizontal_i_position_valid(uint64_t pieces, uint_fast8_t num_pieces) {
     return true;
 }
 
+bool is_free_of_horizontal_i(board_t *board, uint_fast16_t x, uint_fast16_t y) {
+    assert(x <= 3);
+    assert(y <= 4);
+
+    for (uint_fast8_t i = 0; i < board->num_horizontal; i++) {
+        uint_fast16_t hx = get_x_position_from_horizontal_i(board->horizontal_blocks, i);
+        uint_fast16_t hy = get_y_position_from_horizontal_i(board->horizontal_blocks, i);
+        if (y == hy && (x == hx || x == hx + 1))
+            return false;
+    }
+
+    return true;
+}
+
 bool is_position_free_horizontal_i(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast8_t index) {
     assert(x <= 2);
     assert(y <= 4);
@@ -339,12 +359,10 @@ bool is_position_free_horizontal_i(board_t *board, uint_fast16_t x, uint_fast16_
         return false;
 
     // Check collision with small blocks
-    for (uint_fast8_t i = 0; i < 4; i++) {
-        uint_fast16_t sx = get_x_position_from_small_block(board->small_blocks, i);
-        uint_fast16_t sy = get_y_position_from_small_block(board->small_blocks, i);
-        if (y == sy && (x == sx || x + 1 == sx))
-            return false;
-    }
+    if (!is_position_free_small_block(board, x, y))
+        return false;
+    if (!is_position_free_small_block(board, x + 1, y))
+        return false;
 
     // Check collision with vertical I pieces
     for (uint_fast8_t i = 0; i < board->num_vertical; i++) {
