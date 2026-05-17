@@ -113,32 +113,38 @@ $(BUILDDIR)/.pcg_full:
 
 # Generic C compilation rule (with pedantic)
 $(BUILDDIR)/%.o: %.c
-	mkdir -p "$(dir $@)"
-	$(CC) $(CFLAGS) -o "$@" -c "$<"
+	@mkdir -p "$(dir $@)"
+	@printf "[CC]\t$@\n"
+	@$(CC) $(CFLAGS) -o "$@" -c "$<"
 
 # Special rule for third-party code (glad, stb) with relaxed warnings
 $(BUILDDIR)/deps/glad/src/glad.o: deps/glad/src/glad.c
-	mkdir -p "$(dir $@)"
-	$(CC) $(CFLAGS_THIRDPARTY) -o "$@" -c "$<"
+	@mkdir -p "$(dir $@)"
+	@printf "[CC]\t$@\n"
+	@$(CC) $(CFLAGS_THIRDPARTY) -o "$@" -c "$<"
 
 $(BUILDDIR)/deps/stb/%.o: deps/stb/%.c
-	mkdir -p "$(dir $@)"
-	$(CC) $(CFLAGS_THIRDPARTY) -o "$@" -c "$<"
+	@mkdir -p "$(dir $@)"
+	@printf "[CC]\t$@\n"
+	@$(CC) $(CFLAGS_THIRDPARTY) -o "$@" -c "$<"
 
 # Generic C++ compilation rule
 $(BUILDDIR)/%.o: %.cpp
-	mkdir -p "$(dir $@)"
-	$(CXX) $(CPPFLAGS) -o "$@" -c "$<"
+	@mkdir -p "$(dir $@)"
+	@printf "[CXX]\t$@\n"
+	@$(CXX) $(CPPFLAGS) -o "$@" -c "$<"
 
 # Main binary: link via gcc with -lstdc++ for C++ runtime
 $(TARGET): $(OBJS)
-	$(CC) $(LDFLAGS) -o "$@" $^ $(LIBS)
+	@printf "[LD]\t$@\n"
+	@$(CC) $(LDFLAGS) -o "$@" $^ $(LIBS)
 
 # Test binaries: each test_*.c gets its own binary
 # Link only testable objects (no GL/imgui), pcg core, and math
 $(TEST_TARGETS): $(BUILDDIR)/test/%: $(BUILDDIR)/test/%.o $(OBJS_TESTABLE)
-	mkdir -p "$(dir $@)"
-	$(CC) -g -o "$@" $^ -Ldeps/pcg-c/src -lpcg_random -lm
+	@mkdir -p "$(dir $@)"
+	@printf "[LD]\t$@\n"
+	@$(CC) -g -o "$@" $^ -Ldeps/pcg-c/src -lpcg_random -lm
 
 test: pcg $(TEST_TARGETS)
 	@for t in $(TEST_TARGETS); do \
@@ -148,14 +154,16 @@ test: pcg $(TEST_TARGETS)
 	@echo "All tests passed."
 
 clean:
-	rm -rf "$(BUILDDIR)/src" "$(BUILDDIR)/test" "$(BUILDDIR)/deps"
-	rm -f "$(TARGET)"
+	@printf "[CLEAN]\tbuild/\n"
+	@rm -rf "$(BUILDDIR)/src" "$(BUILDDIR)/test" "$(BUILDDIR)/deps"
+	@rm -f "$(TARGET)"
 
 superclean: clean
-	rm -rf "$(BUILDDIR)"
-	$(MAKE) -C deps/pcg-c/src/ clean 2>/dev/null || true
-	$(MAKE) -C deps/pcg-c/ clean 2>/dev/null || true
-	rm -rf deps/glfw/build
+	@printf "[CLEAN]\tdeps/\n"
+	@rm -rf "$(BUILDDIR)"
+	@$(MAKE) -s -C deps/pcg-c/src/ clean 2>/dev/null || true
+	@$(MAKE) -s -C deps/pcg-c/ clean 2>/dev/null || true
+	@rm -rf deps/glfw/build
 
 cpplint:
 	cpplint --filter=-build/include_subdir,-readability/nolint,-whitespace/line_length,-whitespace/comments,-readability/casting,-build/header_guard,-runtime/arrays src/*.c
