@@ -44,8 +44,8 @@ typedef struct _board {
  *
  */
 
-board_t* build_board();
-void destroy_board(board_t *board);
+board_t *build_board();
+void     destroy_board(board_t *board);
 
 bool is_position_free(board_t *board, uint_fast16_t x, uint_fast16_t y);
 bool is_position_free_big_square(board_t *board, uint_fast16_t x, uint_fast16_t y);
