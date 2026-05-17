@@ -4,26 +4,26 @@
 #include <glad/glad.h>
 
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <string>
-#include <iostream>
 
 class Shader {
-public:
-	unsigned int ID;
+  public:
+    unsigned int ID;
 
-	Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath = nullptr);
-	void use();
-	void setBool(const char *name, bool value) const;
-	void setInt(const char *name, int value) const;
-	void setFloat(const char *name, float value) const;
-	void setVec3(const char *name, float x, float y, float z) const;
-	void setVec3f(const char *name, float x, float y, float z) const;
-	void setMatrix4(const char *name, const float *mat) const;
+    Shader(const char *vertexPath, const char *fragmentPath, const char *geometryPath = nullptr);
+    void use();
+    void setBool(const char *name, bool value) const;
+    void setInt(const char *name, int value) const;
+    void setFloat(const char *name, float value) const;
+    void setVec3(const char *name, float x, float y, float z) const;
+    void setVec3f(const char *name, float x, float y, float z) const;
+    void setMatrix4(const char *name, const float *mat) const;
 
-private:
-	void checkCompileErrors(unsigned int shader, const char *type);
-	std::string readFile(const char *filePath);
+  private:
+    void        checkCompileErrors(unsigned int shader, const char *type);
+    std::string readFile(const char *filePath);
 };
 
 #endif

@@ -6,9 +6,9 @@
 #define SAMPLE_COLOR_CHANGE_INTERVAL 60
 
 typedef struct {
-	int            counter;
-	float          color[3];
-	pcg32_random_t rng;
+    int            counter;
+    float          color[3];
+    pcg32_random_t rng;
 } Sample;
 
 void sample_init(Sample *s, uint64_t seed_state, uint64_t seed_seq);
