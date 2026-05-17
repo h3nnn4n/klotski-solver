@@ -145,17 +145,12 @@ board_t board_clone(const board_t *board) {
     return *board;
 }
 
-void board_remove_big_square(board_t *board, uint_fast16_t *out_px, uint_fast16_t *out_py) {
+void board_remove_big_square(board_t *board) {
     assert(board != NULL);
-    if (out_px)
-        *out_px = get_x_position_from_big_square(board->big_piece);
-    if (out_py)
-        *out_py = get_y_position_from_big_square(board->big_piece);
     board->big_piece = 15;
 }
 
-void board_remove_small_block(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast16_t *out_px,
-                              uint_fast16_t *out_py) {
+void board_remove_small_block(board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(board != NULL);
     assert(x <= 3);
     assert(y <= 4);
@@ -163,10 +158,6 @@ void board_remove_small_block(board_t *board, uint_fast16_t x, uint_fast16_t y, 
         uint_fast16_t sx = get_x_position_from_small_block(board->small_blocks, i);
         uint_fast16_t sy = get_y_position_from_small_block(board->small_blocks, i);
         if (sx == x && sy == y) {
-            if (out_px)
-                *out_px = sx;
-            if (out_py)
-                *out_py = sy;
             board->small_blocks &= ~((uint64_t)0x1F << (i * 5));
             return;
         }
@@ -174,8 +165,7 @@ void board_remove_small_block(board_t *board, uint_fast16_t x, uint_fast16_t y, 
     assert(!"no small block at given cell");
 }
 
-void board_remove_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast16_t *out_px,
-                             uint_fast16_t *out_py) {
+void board_remove_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(board != NULL);
     assert(x <= 3);
     assert(y <= 4);
@@ -184,10 +174,6 @@ void board_remove_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t y, u
         uint_fast16_t vx = get_x_position_from_vertical_i(board->vertical_blocks, i);
         uint_fast16_t vy = get_y_position_from_vertical_i(board->vertical_blocks, i);
         if (vx == x && (y == vy || y == vy + 1)) {
-            if (out_px)
-                *out_px = vx;
-            if (out_py)
-                *out_py = vy;
             if (i < board->num_vertical - 1) {
                 board->vertical_blocks = set_vertical_i_position(
                     board->vertical_blocks, i,
@@ -201,8 +187,7 @@ void board_remove_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t y, u
     assert(!"no vertical I at given cell");
 }
 
-void board_remove_horizontal_i(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast16_t *out_px,
-                               uint_fast16_t *out_py) {
+void board_remove_horizontal_i(board_t *board, uint_fast16_t x, uint_fast16_t y) {
     assert(board != NULL);
     assert(x <= 3);
     assert(y <= 4);
@@ -211,10 +196,6 @@ void board_remove_horizontal_i(board_t *board, uint_fast16_t x, uint_fast16_t y,
         uint_fast16_t hx = get_x_position_from_horizontal_i(board->horizontal_blocks, i);
         uint_fast16_t hy = get_y_position_from_horizontal_i(board->horizontal_blocks, i);
         if (hy == y && (x == hx || x == hx + 1)) {
-            if (out_px)
-                *out_px = hx;
-            if (out_py)
-                *out_py = hy;
             if (i < board->num_horizontal - 1) {
                 board->horizontal_blocks = set_horizontal_i_position(
                     board->horizontal_blocks, i,
@@ -228,16 +209,164 @@ void board_remove_horizontal_i(board_t *board, uint_fast16_t x, uint_fast16_t y,
     assert(!"no horizontal I at given cell");
 }
 
-void board_remove_piece(board_t *board, piece_type_t type, uint_fast16_t x, uint_fast16_t y, uint_fast16_t *out_px,
-                        uint_fast16_t *out_py) {
+void board_remove_piece(board_t *board, piece_type_t type, uint_fast16_t x, uint_fast16_t y) {
     assert(board != NULL);
     switch (type) {
-        case PIECE_BIG_SQUARE: board_remove_big_square(board, out_px, out_py); break;
-        case PIECE_SMALL_BLOCK: board_remove_small_block(board, x, y, out_px, out_py); break;
-        case PIECE_VERTICAL_I: board_remove_vertical_i(board, x, y, out_px, out_py); break;
-        case PIECE_HORIZONTAL_I: board_remove_horizontal_i(board, x, y, out_px, out_py); break;
+        case PIECE_BIG_SQUARE: board_remove_big_square(board); break;
+        case PIECE_SMALL_BLOCK: board_remove_small_block(board, x, y); break;
+        case PIECE_VERTICAL_I: board_remove_vertical_i(board, x, y); break;
+        case PIECE_HORIZONTAL_I: board_remove_horizontal_i(board, x, y); break;
         default: assert(!"board_remove_piece: invalid piece type"); break;
     }
+}
+
+void board_get_piece_position(const board_t *board, piece_type_t type, uint_fast16_t x, uint_fast16_t y,
+                              uint_fast16_t *out_px, uint_fast16_t *out_py) {
+    assert(board != NULL);
+
+    switch (type) {
+        case PIECE_BIG_SQUARE:
+            *out_px = get_x_position_from_big_square(board->big_piece);
+            *out_py = get_y_position_from_big_square(board->big_piece);
+            return;
+        case PIECE_SMALL_BLOCK:
+            for (uint_fast8_t i = 0; i < 4; i++) {
+                uint_fast16_t sx = get_x_position_from_small_block(board->small_blocks, i);
+                uint_fast16_t sy = get_y_position_from_small_block(board->small_blocks, i);
+                if (sx == x && sy == y) {
+                    *out_px = sx;
+                    *out_py = sy;
+                    return;
+                }
+            }
+            break;
+        case PIECE_VERTICAL_I:
+            for (uint_fast8_t i = 0; i < board->num_vertical; i++) {
+                uint_fast16_t vx = get_x_position_from_vertical_i(board->vertical_blocks, i);
+                uint_fast16_t vy = get_y_position_from_vertical_i(board->vertical_blocks, i);
+                if (vx == x && (y == vy || y == vy + 1)) {
+                    *out_px = vx;
+                    *out_py = vy;
+                    return;
+                }
+            }
+            break;
+        case PIECE_HORIZONTAL_I:
+            for (uint_fast8_t i = 0; i < board->num_horizontal; i++) {
+                uint_fast16_t hx = get_x_position_from_horizontal_i(board->horizontal_blocks, i);
+                uint_fast16_t hy = get_y_position_from_horizontal_i(board->horizontal_blocks, i);
+                if (hy == y && (x == hx || x == hx + 1)) {
+                    *out_px = hx;
+                    *out_py = hy;
+                    return;
+                }
+            }
+            break;
+        default: break;
+    }
+    assert(!"board_get_piece_position: no piece found at cell");
+}
+
+void board_move_piece_to(board_t *board, piece_type_t type, uint_fast16_t cell_x, uint_fast16_t cell_y,
+                         uint_fast16_t new_x, uint_fast16_t new_y) {
+    assert(board != NULL);
+
+    switch (type) {
+        case PIECE_BIG_SQUARE: board->big_piece = set_big_square_position(new_x, new_y); return;
+        case PIECE_SMALL_BLOCK:
+            for (uint_fast8_t i = 0; i < 4; i++) {
+                uint_fast16_t sx = get_x_position_from_small_block(board->small_blocks, i);
+                uint_fast16_t sy = get_y_position_from_small_block(board->small_blocks, i);
+                if (sx == cell_x && sy == cell_y) {
+                    board->small_blocks = set_small_block_position(board->small_blocks, i, new_x, new_y);
+                    return;
+                }
+            }
+            break;
+        case PIECE_VERTICAL_I:
+            for (uint_fast8_t i = 0; i < board->num_vertical; i++) {
+                uint_fast16_t vx = get_x_position_from_vertical_i(board->vertical_blocks, i);
+                uint_fast16_t vy = get_y_position_from_vertical_i(board->vertical_blocks, i);
+                if (vx == cell_x && (cell_y == vy || cell_y == vy + 1)) {
+                    board->vertical_blocks = set_vertical_i_position(board->vertical_blocks, i, new_x, new_y);
+                    return;
+                }
+            }
+            break;
+        case PIECE_HORIZONTAL_I:
+            for (uint_fast8_t i = 0; i < board->num_horizontal; i++) {
+                uint_fast16_t hx = get_x_position_from_horizontal_i(board->horizontal_blocks, i);
+                uint_fast16_t hy = get_y_position_from_horizontal_i(board->horizontal_blocks, i);
+                if (hy == cell_y && (cell_x == hx || cell_x == hx + 1)) {
+                    board->horizontal_blocks = set_horizontal_i_position(board->horizontal_blocks, i, new_x, new_y);
+                    return;
+                }
+            }
+            break;
+        default: break;
+    }
+    assert(!"board_move_piece_to: no piece found at cell");
+}
+
+void board_move_piece_to_empty_cell(board_t *board, uint_fast16_t x, uint_fast16_t y) {
+    assert(can_piece_move(board, x, y));
+
+    piece_type_t piece_type = get_piece_at(board, x, y);
+    assert(piece_type != PIECE_NONE);
+
+    uint_fast16_t piece_x, piece_y;
+    board_get_piece_position(board, piece_type, x, y, &piece_x, &piece_y);
+
+    int max_x, max_y;
+    switch (piece_type) {
+        case PIECE_BIG_SQUARE:
+            max_x = 2;
+            max_y = 3;
+            break;
+        case PIECE_SMALL_BLOCK:
+            max_x = 3;
+            max_y = 4;
+            break;
+        case PIECE_VERTICAL_I:
+            max_x = 3;
+            max_y = 3;
+            break;
+        case PIECE_HORIZONTAL_I:
+            max_x = 2;
+            max_y = 4;
+            break;
+        default:
+            max_x = 3;
+            max_y = 4;
+            break;
+    }
+
+    does_piece_fit_fn fn = get_does_piece_fit_fn(piece_type);
+    assert(fn != NULL);
+
+    board_t copy = board_clone(board);
+    board_remove_piece(&copy, piece_type, x, y);
+
+    int           offsets[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    int           found         = 0;
+    uint_fast16_t new_x = 0, new_y = 0;
+
+    for (int d = 0; d < 4; d++) {
+        int nx = (int)x + offsets[d][0];
+        int ny = (int)y + offsets[d][1];
+        if (nx < 0 || ny < 0 || nx > max_x || ny > max_y)
+            continue;
+        if ((uint_fast16_t)nx == piece_x && (uint_fast16_t)ny == piece_y)
+            continue;
+        if (fn(&copy, (uint_fast16_t)nx, (uint_fast16_t)ny)) {
+            new_x = (uint_fast16_t)nx;
+            new_y = (uint_fast16_t)ny;
+            found++;
+        }
+    }
+
+    assert(found == 1);
+    board_move_piece_to(board, piece_type, x, y, new_x, new_y);
 }
 
 bool can_piece_move(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
@@ -245,12 +374,14 @@ bool can_piece_move(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
     if (piece_type == PIECE_NONE)
         return false;
 
+    uint_fast16_t piece_x, piece_y;
+    board_get_piece_position(board, piece_type, x, y, &piece_x, &piece_y);
+
     does_piece_fit_fn fn = get_does_piece_fit_fn(piece_type);
     assert(fn != NULL);
 
-    board_t       copy = board_clone(board);
-    uint_fast16_t piece_x, piece_y;
-    board_remove_piece(&copy, piece_type, x, y, &piece_x, &piece_y);
+    board_t copy = board_clone(board);
+    board_remove_piece(&copy, piece_type, x, y);
 
     int max_x, max_y;
     switch (piece_type) {

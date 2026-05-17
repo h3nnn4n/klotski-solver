@@ -77,15 +77,17 @@ bool              can_piece_move(const board_t *board, uint_fast16_t x, uint_fas
 does_piece_fit_fn get_does_piece_fit_fn(piece_type_t type);
 
 board_t board_clone(const board_t *board);
-void    board_remove_big_square(board_t *board, uint_fast16_t *out_px, uint_fast16_t *out_py);
-void    board_remove_small_block(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast16_t *out_px,
-                                 uint_fast16_t *out_py);
-void    board_remove_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast16_t *out_px,
-                                uint_fast16_t *out_py);
-void    board_remove_horizontal_i(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast16_t *out_px,
-                                  uint_fast16_t *out_py);
-void    board_remove_piece(board_t *board, piece_type_t type, uint_fast16_t x, uint_fast16_t y, uint_fast16_t *out_px,
-                           uint_fast16_t *out_py);
+void    board_remove_big_square(board_t *board);
+void    board_remove_small_block(board_t *board, uint_fast16_t x, uint_fast16_t y);
+void    board_remove_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t y);
+void    board_remove_horizontal_i(board_t *board, uint_fast16_t x, uint_fast16_t y);
+void    board_remove_piece(board_t *board, piece_type_t type, uint_fast16_t x, uint_fast16_t y);
+
+void board_get_piece_position(const board_t *board, piece_type_t type, uint_fast16_t x, uint_fast16_t y,
+                              uint_fast16_t *out_px, uint_fast16_t *out_py);
+void board_move_piece_to(board_t *board, piece_type_t type, uint_fast16_t cell_x, uint_fast16_t cell_y,
+                         uint_fast16_t new_x, uint_fast16_t new_y);
+void board_move_piece_to_empty_cell(board_t *board, uint_fast16_t x, uint_fast16_t y);
 
 // 2x2 piece functions
 bool          is_position_free_of_big_square(const board_t *board, uint_fast16_t x, uint_fast16_t y);
