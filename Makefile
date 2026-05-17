@@ -161,6 +161,10 @@ test: pcg $(TEST_TARGETS)
 	done
 	@echo "All tests passed."
 
+test_%: pcg $(BUILDDIR)/test/test_%
+	@echo $(ECHOFLAGS) "[RUN]\t$(filter-out pcg,$^)"
+	@$(filter-out pcg,$^)
+
 clean:
 	@printf "[RM]\tsrc/\n"
 	@rm -rf "$(BUILDDIR)/src"
