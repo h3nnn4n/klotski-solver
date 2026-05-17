@@ -166,6 +166,25 @@ uint64_t set_vertical_i_position(uint64_t pieces, uint_fast8_t index, uint_fast1
     return pieces;
 }
 
+bool is_vertical_i_position_valid(uint64_t pieces, uint_fast8_t num_pieces) {
+    uint64_t used_x[10];
+    uint64_t used_y[10];
+
+    for (int index = 0; index < num_pieces; index++) {
+        used_x[index] = get_x_position_from_vertical_i(pieces, index);
+        used_y[index] = get_y_position_from_vertical_i(pieces, index);
+
+        for (int check_index = 0; check_index < index; check_index++) {
+            if (used_x[index] == used_x[check_index] && used_y[index] <= used_y[check_index] + 1 &&
+                used_y[index] + 1 >= used_y[check_index]) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 bool is_position_free_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast8_t index) {
     assert(x <= 3);
     assert(y <= 3);
@@ -248,6 +267,25 @@ uint64_t set_horizontal_i_position(uint64_t pieces, uint_fast8_t index, uint_fas
     pieces |= encoded << (index * 4);
 
     return pieces;
+}
+
+bool is_horizontal_i_position_valid(uint64_t pieces, uint_fast8_t num_pieces) {
+    uint64_t used_x[10];
+    uint64_t used_y[10];
+
+    for (int index = 0; index < num_pieces; index++) {
+        used_x[index] = get_x_position_from_horizontal_i(pieces, index);
+        used_y[index] = get_y_position_from_horizontal_i(pieces, index);
+
+        for (int check_index = 0; check_index < index; check_index++) {
+            if (used_y[index] == used_y[check_index] && used_x[index] <= used_x[check_index] + 1 &&
+                used_x[index] + 1 >= used_x[check_index]) {
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 bool is_position_free_horizontal_i(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast8_t index) {
