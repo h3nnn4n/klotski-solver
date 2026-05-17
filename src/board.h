@@ -1,6 +1,6 @@
 #include <stdbool.h>
 
-#include "stdint.h"
+#include <stdint.h>
 
 typedef struct _board {
     // we might need to track vertical and horizontal separatelly
@@ -53,3 +53,8 @@ bool is_position_free_big_square(board_t *board, uint_fast16_t x, uint_fast16_t 
 uint_fast16_t get_x_position_from_big_square(uint_fast16_t piece);
 uint_fast16_t get_y_position_from_big_square(uint_fast16_t piece);
 uint_fast16_t encode_big_square_position(uint_fast16_t x, uint_fast16_t y);
+
+bool          is_position_free_small_block(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast8_t index);
+uint_fast16_t get_x_position_from_small_block(uint64_t pieces, uint_fast8_t index);
+uint_fast16_t get_y_position_from_small_block(uint64_t pieces, uint_fast8_t index);
+uint64_t      set_small_block_position(uint64_t pieces, uint_fast8_t index, uint_fast16_t x, uint_fast16_t y);
