@@ -12,8 +12,7 @@ typedef struct _board {
     uint_fast8_t num_horizontal;
 
     // Small 1x1 blocks (up to 4 pieces, each encoded as x + y*4, 5 bits each)
-    uint64_t     small_blocks;
-    uint_fast8_t num_small;
+    uint64_t small_blocks;
 
     // Big 2x2 piece, encoded as x + y*3 (0-11)
     uint_fast8_t big_piece;
@@ -68,6 +67,7 @@ bool          is_position_free_small_block(board_t *board, uint_fast16_t x, uint
 uint_fast16_t get_x_position_from_small_block(uint64_t pieces, uint_fast8_t index);
 uint_fast16_t get_y_position_from_small_block(uint64_t pieces, uint_fast8_t index);
 uint64_t      set_small_block_position(uint64_t pieces, uint_fast8_t index, uint_fast16_t x, uint_fast16_t y);
+bool          is_small_block_position_valid(uint64_t pieces);
 
 // Vertical I-piece (2x1) functions
 bool          is_position_free_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast8_t index);

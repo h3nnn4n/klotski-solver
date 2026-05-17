@@ -156,6 +156,17 @@ void test_is_position_free_small_block(void) {
     destroy_board(board);
 }
 
+void test_is_small_block_position_valid(void) {
+    uint_fast16_t position = 0;
+    TEST_ASSERT_FALSE(is_small_block_position_valid(position));
+
+    position = set_small_block_position(position, 0, 1, 1);
+    position = set_small_block_position(position, 1, 2, 1);
+    position = set_small_block_position(position, 2, 1, 2);
+    position = set_small_block_position(position, 3, 2, 2);
+    TEST_ASSERT_TRUE(is_small_block_position_valid(position));
+}
+
 void test_encode_vertical_i_position(void) {
     // Vertical I: valid x in [0,3], y in [0,3], encoded as x + y*4
     TEST_ASSERT_EQUAL(0,  encode_vertical_i_position(0, 0));

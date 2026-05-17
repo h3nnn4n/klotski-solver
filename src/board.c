@@ -18,7 +18,6 @@ board_t *build_board() {
     board->num_horizontal    = 0;
 
     board->small_blocks = 0;
-    board->num_small    = 0;
 
     return board;
 }
@@ -113,6 +112,24 @@ uint64_t set_small_block_position(uint64_t pieces, uint_fast8_t index, uint_fast
     return pieces;
 }
 
+bool is_small_block_position_valid(uint64_t pieces) {
+    uint64_t used_x[4];
+    uint64_t used_y[4];
+
+    for (int index = 0; index < 4; index++) {
+        used_x[index] = get_x_position_from_small_block(pieces, index);
+        used_y[index] = get_y_position_from_small_block(pieces, index);
+
+        for (int check_index = 0; check_index < index; check_index++) {
+            if (used_x[index] == used_x[check_index] && used_y[index] == used_y[check_index]) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 // =============================================================================
 // Vertical I-piece (2x1) functions
 // =============================================================================
@@ -163,10 +180,9 @@ bool is_position_free_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t 
         return false;
 
     // Check collision with small blocks
-    for (uint_fast8_t i = 0; i < board->num_small; i++) {
+    for (uint_fast8_t i = 0; i < 4; i++) {
         uint_fast16_t sx = get_x_position_from_small_block(board->small_blocks, i);
         uint_fast16_t sy = get_y_position_from_small_block(board->small_blocks, i);
-        // Small block occupies (sx, sy)
         if (x == sx && (y == sy || y + 1 == sy))
             return false;
     }
@@ -248,10 +264,9 @@ bool is_position_free_horizontal_i(board_t *board, uint_fast16_t x, uint_fast16_
         return false;
 
     // Check collision with small blocks
-    for (uint_fast8_t i = 0; i < board->num_small; i++) {
+    for (uint_fast8_t i = 0; i < 4; i++) {
         uint_fast16_t sx = get_x_position_from_small_block(board->small_blocks, i);
         uint_fast16_t sy = get_y_position_from_small_block(board->small_blocks, i);
-        // Small block occupies (sx, sy)
         if (y == sy && (x == sx || x + 1 == sx))
             return false;
     }
