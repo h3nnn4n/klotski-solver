@@ -47,7 +47,7 @@ CPPFLAGS := -Wall -std=c++11 $(OPTIMIZATION) $(OPTIONS) $(INCLUDES) $(CPPFLAGS_E
 C_FILES_MAIN := src/main.c src/gui.c
 
 # Headless-testable C files (no GL/GLFW headers)
-C_FILES_TESTABLE := src/sample.c src/utils.c
+C_FILES_TESTABLE := src/sample.c src/utils.c src/board.c
 
 # All C files for main binary
 C_FILES := $(C_FILES_MAIN) $(C_FILES_TESTABLE) \
