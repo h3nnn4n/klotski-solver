@@ -92,6 +92,38 @@ bool is_position_free(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
     return true;
 }
 
+piece_type_t get_piece_at(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
+    {
+        uint_fast16_t bx = get_x_position_from_big_square(board->big_piece);
+        uint_fast16_t by = get_y_position_from_big_square(board->big_piece);
+        if (x >= bx && x <= bx + 1 && y >= by && y <= by + 1)
+            return PIECE_BIG_SQUARE;
+    }
+
+    for (uint_fast8_t i = 0; i < 4; i++) {
+        uint_fast16_t sx = get_x_position_from_small_block(board->small_blocks, i);
+        uint_fast16_t sy = get_y_position_from_small_block(board->small_blocks, i);
+        if (x == sx && y == sy)
+            return PIECE_SMALL_BLOCK;
+    }
+
+    for (uint_fast8_t i = 0; i < board->num_vertical; i++) {
+        uint_fast16_t vx = get_x_position_from_vertical_i(board->vertical_blocks, i);
+        uint_fast16_t vy = get_y_position_from_vertical_i(board->vertical_blocks, i);
+        if (x == vx && (y == vy || y == vy + 1))
+            return PIECE_VERTICAL_I;
+    }
+
+    for (uint_fast8_t i = 0; i < board->num_horizontal; i++) {
+        uint_fast16_t hx = get_x_position_from_horizontal_i(board->horizontal_blocks, i);
+        uint_fast16_t hy = get_y_position_from_horizontal_i(board->horizontal_blocks, i);
+        if (y == hy && (x == hx || x == hx + 1))
+            return PIECE_HORIZONTAL_I;
+    }
+
+    return PIECE_NONE;
+}
+
 // =============================================================================
 // 2x2 functions
 // =============================================================================

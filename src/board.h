@@ -1,3 +1,6 @@
+#ifndef SRC_BOARD_H_
+#define SRC_BOARD_H_
+
 #include <stdbool.h>
 
 #include <stdint.h>
@@ -17,6 +20,14 @@ typedef struct _board {
     // Big 2x2 piece, encoded as x + y*3 (0-11)
     uint_fast8_t big_piece;
 } board_t;
+
+typedef enum {
+    PIECE_NONE         = -1,
+    PIECE_BIG_SQUARE   = 0,
+    PIECE_SMALL_BLOCK  = 1,
+    PIECE_VERTICAL_I   = 2,
+    PIECE_HORIZONTAL_I = 3,
+} piece_type_t;
 
 /*
  *
@@ -55,9 +66,10 @@ board_t *build_board();
 void     destroy_board(board_t *board);
 
 // Board
-bool is_position_free(const board_t *board, uint_fast16_t x, uint_fast16_t y);
-void reset_board_to_classic(board_t *board);
-bool is_board_valid(const board_t *board);
+bool         is_position_free(const board_t *board, uint_fast16_t x, uint_fast16_t y);
+piece_type_t get_piece_at(const board_t *board, uint_fast16_t x, uint_fast16_t y);
+void         reset_board_to_classic(board_t *board);
+bool         is_board_valid(const board_t *board);
 
 // 2x2 piece functions
 bool          is_position_free_of_big_square(const board_t *board, uint_fast16_t x, uint_fast16_t y);
@@ -89,3 +101,5 @@ uint_fast16_t get_x_position_from_horizontal_i(uint64_t pieces, uint_fast8_t ind
 uint_fast16_t get_y_position_from_horizontal_i(uint64_t pieces, uint_fast8_t index);
 uint64_t      set_horizontal_i_position(uint64_t pieces, uint_fast8_t index, uint_fast16_t x, uint_fast16_t y);
 bool          is_horizontal_i_position_valid(uint64_t pieces, uint_fast8_t num_pieces);
+
+#endif

@@ -621,6 +621,36 @@ void test_horizontal_i_collides_with_small_block(void) {
     destroy_board(board);
 }
 
+void test_get_piece_at_empty(void) {
+    board_t *board = build_board();
+
+    TEST_ASSERT_EQUAL(PIECE_BIG_SQUARE, get_piece_at(board, 0, 0));
+    TEST_ASSERT_EQUAL(PIECE_BIG_SQUARE, get_piece_at(board, 1, 0));
+    TEST_ASSERT_EQUAL(PIECE_NONE, get_piece_at(board, 2, 0));
+    TEST_ASSERT_EQUAL(PIECE_NONE, get_piece_at(board, 3, 4));
+
+    destroy_board(board);
+}
+
+void test_get_piece_at_classic(void) {
+    board_t *board = build_board();
+    reset_board_to_classic(board);
+
+    TEST_ASSERT_EQUAL(PIECE_BIG_SQUARE, get_piece_at(board, 1, 0));
+    TEST_ASSERT_EQUAL(PIECE_BIG_SQUARE, get_piece_at(board, 2, 1));
+    TEST_ASSERT_EQUAL(PIECE_SMALL_BLOCK, get_piece_at(board, 0, 4));
+    TEST_ASSERT_EQUAL(PIECE_SMALL_BLOCK, get_piece_at(board, 1, 3));
+    TEST_ASSERT_EQUAL(PIECE_VERTICAL_I, get_piece_at(board, 0, 0));
+    TEST_ASSERT_EQUAL(PIECE_VERTICAL_I, get_piece_at(board, 0, 1));
+    TEST_ASSERT_EQUAL(PIECE_VERTICAL_I, get_piece_at(board, 3, 2));
+    TEST_ASSERT_EQUAL(PIECE_HORIZONTAL_I, get_piece_at(board, 1, 2));
+    TEST_ASSERT_EQUAL(PIECE_HORIZONTAL_I, get_piece_at(board, 2, 2));
+    TEST_ASSERT_EQUAL(PIECE_NONE, get_piece_at(board, 1, 4));
+    TEST_ASSERT_EQUAL(PIECE_NONE, get_piece_at(board, 2, 4));
+
+    destroy_board(board);
+}
+
 int main(void) {
 	UNITY_BEGIN();
 
@@ -629,6 +659,8 @@ int main(void) {
 
     // Board
     RUN_TEST(test_is_position_free);
+    RUN_TEST(test_get_piece_at_empty);
+    RUN_TEST(test_get_piece_at_classic);
     RUN_TEST(test_classic_board_is_valid);
     RUN_TEST(test_duplicate_small_blocks_invalid);
     RUN_TEST(test_overlapping_vertical_i_invalid);

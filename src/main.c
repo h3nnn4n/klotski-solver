@@ -1,12 +1,10 @@
 #include <stdio.h>
-#include <time.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "board.h"
 #include "gui.h"
-#include "sample.h"
-#include "shader_c.h"
 
 static void error_callback(int error, const char *description) {
     fprintf(stderr, "GLFW error %d: %s\n", error, description);
@@ -54,35 +52,21 @@ int main(void) {
 
     gui_init(window);
 
-    Sample   sample;
-    uint64_t seed = (uint64_t)time(NULL);
-    sample_init(&sample, seed, 1u);
-
-    Shader *shader = newShader("shaders/main.vert", "shaders/main.frag", NULL);
-    if (!shader) {
-        fprintf(stderr, "Failed to load shader\n");
-        gui_terminate();
-        glfwTerminate();
-        return 1;
-    }
+    board_t *board = build_board();
+    reset_board_to_classic(board);
 
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
-        sample_tick(&sample);
-
-        glClearColor(sample.color[0], sample.color[1], sample.color[2], 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        Shader_use(shader);
-        Shader_setVec3f(shader, "u_color", sample.color[0], sample.color[1], sample.color[2]);
-
-        gui_render(&sample);
+        gui_render(board);
 
         glfwSwapBuffers(window);
     }
 
-    Shader_destroy(shader);
+    destroy_board(board);
     gui_terminate();
     glfwTerminate();
 
