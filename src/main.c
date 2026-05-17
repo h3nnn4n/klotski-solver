@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <time.h>
 
-#include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 #include "gui.h"
 #include "sample.h"

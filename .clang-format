@@ -72,15 +72,16 @@ ForEachMacros:
   - BOOST_FOREACH
 IncludeBlocks:   Preserve
 IncludeCategories:
-  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
-    Priority:        2
-    SortPriority:    0
-  - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
-    Priority:        3
-    SortPriority:    0
-  - Regex:           '.*'
+  - Regex:           '^<glad/'
     Priority:        1
-    SortPriority:    0
+  - Regex:           '^<GLFW/'
+    Priority:        2
+  - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
+    Priority:        3
+  - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
+    Priority:        4
+  - Regex:           '.*'
+    Priority:        5
 IncludeIsMainRegex: '(Test)?$'
 IncludeIsMainSourceRegex: ''
 IndentCaseLabels: true
