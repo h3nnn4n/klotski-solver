@@ -2,8 +2,9 @@
 .PHONY: all build rebuild clean test debug run glfw pcg pcg_full superclean \
         cpplint cppcheck clang-format format
 
-TARGET   := $(notdir $(CURDIR))
-BUILDDIR := $(abspath $(CURDIR)/build)
+PROJECT_NAME := C_Template
+TARGET      := bin/$(PROJECT_NAME)
+BUILDDIR    := $(abspath $(CURDIR)/build)
 
 CC  := gcc
 CXX := g++
@@ -136,7 +137,9 @@ $(BUILDDIR)/%.o: %.cpp
 
 # Main binary: link via gcc with -lstdc++ for C++ runtime
 $(TARGET): $(OBJS)
+	@mkdir -p "$(dir $@)"
 	@printf "[LD]\t$(subst $(CURDIR)/,,$@)\n"
+	@$(CC) $(LDFLAGS) -o "$@" $^ $(LIBS)
 
 # Test binaries: each test_*.c gets its own binary
 # Link only testable objects (no GL/imgui), pcg core, and math
@@ -155,7 +158,7 @@ test: pcg $(TEST_TARGETS)
 clean:
 	@printf "[CLEAN]\tbuild/\n"
 	@rm -rf "$(BUILDDIR)/src" "$(BUILDDIR)/test" "$(BUILDDIR)/deps"
-	@rm -f "$(TARGET)"
+	@rm -rf "bin"
 
 superclean: clean
 	@printf "[CLEAN]\tdeps/\n"

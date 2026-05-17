@@ -5,4 +5,4 @@ imgui.ini
 .cache/
 *.plist
 deps/glfw/build/
-template
+bin/
