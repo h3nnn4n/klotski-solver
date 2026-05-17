@@ -28,10 +28,27 @@ void destroy_board(board_t *board) {
     free(board);
 }
 
+void reset_board_to_classic(board_t *board) {
+    board->small_blocks = set_small_block_position(board->small_blocks, 0, 4);
+    board->small_blocks = set_small_block_position(board->small_blocks, 1, 3);
+    board->small_blocks = set_small_block_position(board->small_blocks, 2, 3);
+    board->small_blocks = set_small_block_position(board->small_blocks, 3, 4);
+
+    board->big_piece = set_
+}
+
 bool is_position_free(board_t *board, uint_fast16_t x, uint_fast16_t y) {
-    (void)board;
     assert(x <= 4);
     assert(y <= 5);
+
+    if (!is_position_free_big_square(board, x, y))
+        return false;
+    if (!is_position_free_small_block(board, x, y))
+        return false;
+    if (!is_position_free_horizontal_i(board, x, y))
+        return false;
+    if (!is_position_free_vertical_i(board, x, y))
+        return false;
 
     return true;
 }
@@ -63,7 +80,7 @@ uint_fast16_t get_x_position_from_big_square(uint_fast16_t piece) { return piece
 
 uint_fast16_t get_y_position_from_big_square(uint_fast16_t piece) { return piece / 3; }
 
-uint_fast16_t encode_big_square_position(uint_fast16_t x, uint_fast16_t y) { return x + y * 3; }
+uint_fast16_t set_big_square_position(uint_fast16_t x, uint_fast16_t y) { return x + y * 3; }
 
 // =============================================================================
 // 1x1 functions
@@ -134,7 +151,7 @@ bool is_small_block_position_valid(uint64_t pieces) {
 // Vertical I-piece (2x1) functions
 // =============================================================================
 
-uint64_t encode_vertical_i_position(uint_fast16_t x, uint_fast16_t y) {
+uint64_t set_vertical_i_position(uint_fast16_t x, uint_fast16_t y) {
     assert(x <= 3);
     assert(y <= 3);
     return x + y * 4;
@@ -237,7 +254,7 @@ bool is_position_free_vertical_i(board_t *board, uint_fast16_t x, uint_fast16_t 
 // Horizontal I-piece (1x2) functions
 // =============================================================================
 
-uint64_t encode_horizontal_i_position(uint_fast16_t x, uint_fast16_t y) {
+uint64_t set_horizontal_i_position(uint_fast16_t x, uint_fast16_t y) {
     assert(x <= 2);
     assert(y <= 4);
     return x + y * 3;

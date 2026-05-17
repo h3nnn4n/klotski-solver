@@ -54,36 +54,36 @@ void test_get_big_piece_position(void) {
     TEST_ASSERT_EQUAL(get_y_position_from_big_square(3), 1);
 }
 
-void test_encode_big_piece_position(void) {
-    TEST_ASSERT_EQUAL(encode_big_square_position(0, 0), 0);
-    TEST_ASSERT_EQUAL(encode_big_square_position(1, 0), 1);
-    TEST_ASSERT_EQUAL(encode_big_square_position(2, 0), 2);
-    TEST_ASSERT_EQUAL(encode_big_square_position(0, 1), 3);
-    TEST_ASSERT_EQUAL(encode_big_square_position(1, 1), 4);
-    TEST_ASSERT_EQUAL(encode_big_square_position(2, 1), 5);
+void test_set_big_piece_position(void) {
+    TEST_ASSERT_EQUAL(set_big_square_position(0, 0), 0);
+    TEST_ASSERT_EQUAL(set_big_square_position(1, 0), 1);
+    TEST_ASSERT_EQUAL(set_big_square_position(2, 0), 2);
+    TEST_ASSERT_EQUAL(set_big_square_position(0, 1), 3);
+    TEST_ASSERT_EQUAL(set_big_square_position(1, 1), 4);
+    TEST_ASSERT_EQUAL(set_big_square_position(2, 1), 5);
 }
 
 void test_get_big_piece_position_idempotency(void) {
     {
-        const uint_fast16_t position = encode_big_square_position(0, 0);
+        const uint_fast16_t position = set_big_square_position(0, 0);
         TEST_ASSERT_EQUAL(get_x_position_from_big_square(position), 0);
         TEST_ASSERT_EQUAL(get_y_position_from_big_square(position), 0);
     }
 
     {
-        const uint_fast16_t position = encode_big_square_position(1, 0);
+        const uint_fast16_t position = set_big_square_position(1, 0);
         TEST_ASSERT_EQUAL(get_x_position_from_big_square(position), 1);
         TEST_ASSERT_EQUAL(get_y_position_from_big_square(position), 0);
     }
 
     {
-        const uint_fast16_t position = encode_big_square_position(0, 1);
+        const uint_fast16_t position = set_big_square_position(0, 1);
         TEST_ASSERT_EQUAL(get_x_position_from_big_square(position), 0);
         TEST_ASSERT_EQUAL(get_y_position_from_big_square(position), 1);
     }
 
     {
-        const uint_fast16_t position = encode_big_square_position(1, 1);
+        const uint_fast16_t position = set_big_square_position(1, 1);
         TEST_ASSERT_EQUAL(get_x_position_from_big_square(position), 1);
         TEST_ASSERT_EQUAL(get_y_position_from_big_square(position), 1);
     }
@@ -183,13 +183,13 @@ void test_is_small_block_position_valid(void) {
 // Vertical I pieces (2x1)
 // =============================================================================
 
-void test_encode_vertical_i_position(void) {
+void test_set_vertical_i_position(void) {
     // Vertical I: valid x in [0,3], y in [0,3], encoded as x + y*4
-    TEST_ASSERT_EQUAL(0,  encode_vertical_i_position(0, 0));
-    TEST_ASSERT_EQUAL(3,  encode_vertical_i_position(3, 0));
-    TEST_ASSERT_EQUAL(4,  encode_vertical_i_position(0, 1));
-    TEST_ASSERT_EQUAL(7,  encode_vertical_i_position(3, 1));
-    TEST_ASSERT_EQUAL(15, encode_vertical_i_position(3, 3));
+    TEST_ASSERT_EQUAL(0,  set_vertical_i_position(0, 0));
+    TEST_ASSERT_EQUAL(3,  set_vertical_i_position(3, 0));
+    TEST_ASSERT_EQUAL(4,  set_vertical_i_position(0, 1));
+    TEST_ASSERT_EQUAL(7,  set_vertical_i_position(3, 1));
+    TEST_ASSERT_EQUAL(15, set_vertical_i_position(3, 3));
 }
 
 void test_get_vertical_i_position(void) {
@@ -274,13 +274,13 @@ void test_is_vertical_i_position_valid(void) {
 // Horizontal I pieces (1x2)
 // =============================================================================
 
-void test_encode_horizontal_i_position(void) {
+void test_set_horizontal_i_position(void) {
     // Horizontal I: valid x in [0,2], y in [0,4], encoded as x + y*3
-    TEST_ASSERT_EQUAL(0,  encode_horizontal_i_position(0, 0));
-    TEST_ASSERT_EQUAL(2,  encode_horizontal_i_position(2, 0));
-    TEST_ASSERT_EQUAL(3,  encode_horizontal_i_position(0, 1));
-    TEST_ASSERT_EQUAL(5,  encode_horizontal_i_position(2, 1));
-    TEST_ASSERT_EQUAL(14, encode_horizontal_i_position(2, 4));
+    TEST_ASSERT_EQUAL(0,  set_horizontal_i_position(0, 0));
+    TEST_ASSERT_EQUAL(2,  set_horizontal_i_position(2, 0));
+    TEST_ASSERT_EQUAL(3,  set_horizontal_i_position(0, 1));
+    TEST_ASSERT_EQUAL(5,  set_horizontal_i_position(2, 1));
+    TEST_ASSERT_EQUAL(14, set_horizontal_i_position(2, 4));
 }
 
 void test_get_horizontal_i_position(void) {
@@ -361,7 +361,7 @@ void test_is_horizontal_i_position_valid(void) {
 
 void test_is_position_free_vertical_i(void) {
     board_t *board = build_board();
-    board->big_piece = encode_big_square_position(0, 3);
+    board->big_piece = set_big_square_position(0, 3);
     board->small_blocks = set_small_block_position(board->small_blocks, 0, 0, 2);
     board->small_blocks = set_small_block_position(board->small_blocks, 1, 1, 2);
     board->small_blocks = set_small_block_position(board->small_blocks, 2, 3, 0);
@@ -373,7 +373,7 @@ void test_is_position_free_vertical_i(void) {
 
     TEST_ASSERT_TRUE(is_position_free_vertical_i(board, 0, 0, 0));
 
-    board->big_piece = encode_big_square_position(2, 1);
+    board->big_piece = set_big_square_position(2, 1);
     TEST_ASSERT_FALSE(is_position_free_vertical_i(board, 2, 2, 0));
 
     destroy_board(board);
@@ -381,7 +381,7 @@ void test_is_position_free_vertical_i(void) {
 
 void test_is_position_free_vertical_i_collision_with_other(void) {
     board_t *board = build_board();
-    board->big_piece = encode_big_square_position(2, 3);
+    board->big_piece = set_big_square_position(2, 3);
     board->small_blocks = set_small_block_position(board->small_blocks, 0, 1, 0);
     board->small_blocks = set_small_block_position(board->small_blocks, 1, 1, 1);
     board->small_blocks = set_small_block_position(board->small_blocks, 2, 1, 2);
@@ -405,7 +405,7 @@ void test_is_position_free_vertical_i_collision_with_other(void) {
 
 void test_is_position_free_horizontal_i(void) {
     board_t *board = build_board();
-    board->big_piece = encode_big_square_position(0, 3);
+    board->big_piece = set_big_square_position(0, 3);
     board->small_blocks = set_small_block_position(board->small_blocks, 0, 3, 0);
     board->small_blocks = set_small_block_position(board->small_blocks, 1, 3, 1);
     board->small_blocks = set_small_block_position(board->small_blocks, 2, 2, 0);
@@ -417,7 +417,7 @@ void test_is_position_free_horizontal_i(void) {
 
     TEST_ASSERT_TRUE(is_position_free_horizontal_i(board, 0, 0, 0));
 
-    board->big_piece = encode_big_square_position(0, 3);
+    board->big_piece = set_big_square_position(0, 3);
     TEST_ASSERT_FALSE(is_position_free_horizontal_i(board, 0, 3, 0));
 
     destroy_board(board);
@@ -425,7 +425,7 @@ void test_is_position_free_horizontal_i(void) {
 
 void test_is_position_free_horizontal_i_collision_with_other(void) {
     board_t *board = build_board();
-    board->big_piece = encode_big_square_position(0, 3);
+    board->big_piece = set_big_square_position(0, 3);
     board->small_blocks = set_small_block_position(board->small_blocks, 0, 3, 0);
     board->small_blocks = set_small_block_position(board->small_blocks, 1, 3, 1);
     board->small_blocks = set_small_block_position(board->small_blocks, 2, 3, 2);
@@ -449,7 +449,7 @@ void test_is_position_free_horizontal_i_collision_with_other(void) {
 
 void test_vertical_i_collides_with_horizontal_i(void) {
     board_t *board = build_board();
-    board->big_piece = encode_big_square_position(2, 3); // out of the way
+    board->big_piece = set_big_square_position(2, 3); // out of the way
     board->num_vertical = 1;
     board->num_horizontal = 1;
     board->vertical_blocks = set_vertical_i_position(board->vertical_blocks, 0, 0, 0);
@@ -476,7 +476,7 @@ void test_vertical_i_collides_with_horizontal_i(void) {
 
 void test_vertical_i_collides_with_small_block(void) {
     board_t *board = build_board();
-    board->big_piece = encode_big_square_position(0, 3); // out of the way
+    board->big_piece = set_big_square_position(0, 3); // out of the way
     board->small_blocks = set_small_block_position(board->small_blocks, 0, 2, 2);
     board->small_blocks = set_small_block_position(board->small_blocks, 1, 3, 3);
     board->small_blocks = set_small_block_position(board->small_blocks, 2, 0, 4);
@@ -496,7 +496,7 @@ void test_vertical_i_collides_with_small_block(void) {
 
 void test_horizontal_i_collides_with_small_block(void) {
     board_t *board = build_board();
-    board->big_piece = encode_big_square_position(0, 3); // out of the way
+    board->big_piece = set_big_square_position(0, 3); // out of the way
     board->small_blocks = set_small_block_position(board->small_blocks, 0, 2, 2);
     board->small_blocks = set_small_block_position(board->small_blocks, 1, 3, 3);
     board->small_blocks = set_small_block_position(board->small_blocks, 2, 0, 4);
@@ -519,12 +519,14 @@ int main(void) {
 
     // Lifecycle
     RUN_TEST(test_build_and_destroy);
+
+    // Board
     RUN_TEST(test_is_position_free);
 
     // Big square piece (2x2)
     RUN_TEST(test_is_position_free_big_square);
     RUN_TEST(test_get_big_piece_position);
-    RUN_TEST(test_encode_big_piece_position);
+    RUN_TEST(test_set_big_piece_position);
     RUN_TEST(test_get_big_piece_position_idempotency);
 
     // Small blocks (1x1)
@@ -535,7 +537,7 @@ int main(void) {
     RUN_TEST(test_is_small_block_position_valid);
 
     // Vertical I pieces (2x1)
-    RUN_TEST(test_encode_vertical_i_position);
+    RUN_TEST(test_set_vertical_i_position);
     RUN_TEST(test_get_vertical_i_position);
     RUN_TEST(test_set_vertical_i_position);
     RUN_TEST(test_set_and_get_vertical_i_idempotency);
@@ -544,7 +546,7 @@ int main(void) {
     RUN_TEST(test_is_position_free_vertical_i_collision_with_other);
 
     // Horizontal I pieces (1x2)
-    RUN_TEST(test_encode_horizontal_i_position);
+    RUN_TEST(test_set_horizontal_i_position);
     RUN_TEST(test_get_horizontal_i_position);
     RUN_TEST(test_set_horizontal_i_position);
     RUN_TEST(test_set_and_get_horizontal_i_idempotency);

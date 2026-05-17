@@ -60,7 +60,7 @@ bool is_position_free(board_t *board, uint_fast16_t x, uint_fast16_t y);
 bool          is_position_free_big_square(board_t *board, uint_fast16_t x, uint_fast16_t y);
 uint_fast16_t get_x_position_from_big_square(uint_fast16_t piece);
 uint_fast16_t get_y_position_from_big_square(uint_fast16_t piece);
-uint_fast16_t encode_big_square_position(uint_fast16_t x, uint_fast16_t y);
+uint_fast16_t set_big_square_position(uint_fast16_t x, uint_fast16_t y);
 
 // 1x1 piece functions
 bool          is_position_free_small_block(board_t *board, uint_fast16_t x, uint_fast16_t y, uint_fast8_t index);
@@ -74,7 +74,7 @@ bool          is_position_free_vertical_i(board_t *board, uint_fast16_t x, uint_
 uint_fast16_t get_x_position_from_vertical_i(uint64_t pieces, uint_fast8_t index);
 uint_fast16_t get_y_position_from_vertical_i(uint64_t pieces, uint_fast8_t index);
 uint64_t      set_vertical_i_position(uint64_t pieces, uint_fast8_t index, uint_fast16_t x, uint_fast16_t y);
-uint64_t      encode_vertical_i_position(uint_fast16_t x, uint_fast16_t y);
+uint64_t      set_vertical_i_position(uint_fast16_t x, uint_fast16_t y);
 bool          is_vertical_i_position_valid(uint64_t pieces, uint_fast8_t num_pieces);
 
 // Horizontal I-piece (1x2) functions
@@ -82,5 +82,5 @@ bool          is_position_free_horizontal_i(board_t *board, uint_fast16_t x, uin
 uint_fast16_t get_x_position_from_horizontal_i(uint64_t pieces, uint_fast8_t index);
 uint_fast16_t get_y_position_from_horizontal_i(uint64_t pieces, uint_fast8_t index);
 uint64_t      set_horizontal_i_position(uint64_t pieces, uint_fast8_t index, uint_fast16_t x, uint_fast16_t y);
-uint64_t      encode_horizontal_i_position(uint_fast16_t x, uint_fast16_t y);
+uint64_t      set_horizontal_i_position(uint_fast16_t x, uint_fast16_t y);
 bool          is_horizontal_i_position_valid(uint64_t pieces, uint_fast8_t num_pieces);
