@@ -157,28 +157,28 @@ test: pcg $(TEST_TARGETS)
 	@echo "All tests passed."
 
 clean:
-	@printf "[CLEAN]\tsrc/\n"
+	@printf "[RM]\tsrc/\n"
 	@rm -rf "$(BUILDDIR)/src"
-	@printf "[CLEAN]\ttest/\n"
+	@printf "[RM]\ttest/\n"
 	@rm -rf "$(BUILDDIR)/test"
-	@printf "[CLEAN]\tbin/\n"
+	@printf "[RM]\tbin/\n"
 	@rm -rf "bin"
 
 distclean:
-	@printf "[CLEAN]\tbuild/\n"
+	@printf "[RM]\tbuild/\n"
 	@rm -rf "$(BUILDDIR)"
 	@rm -rf "bin"
 
 superclean:
-	@printf "[CLEAN]\tbuild/\n"
+	@printf "[RM]\tbuild/\n"
 	@rm -rf "$(BUILDDIR)"
-	@printf "[CLEAN]\tbin/\n"
+	@printf "[RM]\tbin/\n"
 	@rm -rf "bin"
-	@printf "[CLEAN]\tdeps/pcg-c/src/\n"
+	@printf "[RM]\tdeps/pcg-c/src/\n"
 	@$(MAKE) -s -C deps/pcg-c/src/ clean 2>/dev/null || true
-	@printf "[CLEAN]\tdeps/pcg-c/\n"
+	@printf "[RM]\tdeps/pcg-c/\n"
 	@$(MAKE) -s -C deps/pcg-c/ clean 2>/dev/null || true
-	@printf "[CLEAN]\tdeps/glfw/\n"
+	@printf "[RM]\tdeps/glfw/\n"
 	@rm -rf deps/glfw/build
 
 cpplint:
