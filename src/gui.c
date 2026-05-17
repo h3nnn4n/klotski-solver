@@ -41,7 +41,7 @@ static void draw_board_panel(const board_t *board) {
     colors[2] = igColorConvertFloat4ToU32((ImVec4){60.0f / 255, 100.0f / 255, 220.0f / 255, 1});
     colors[3] = igColorConvertFloat4ToU32((ImVec4){220.0f / 255, 180.0f / 255, 40.0f / 255, 1});
 
-    const char *labels[4] = {"2x2", "1x1", "  I", "I  "};
+    const char *labels[4] = {"2x2", "1x1", " |", "--"};
 
     for (int y = 0; y < 5; y++) {
         for (int x = 0; x < 4; x++) {
@@ -110,13 +110,37 @@ static void draw_info_panel(const board_t *board) {
 
     igSeparator();
     {
-        int empty_count = 0;
-        for (int x = 0; x < 4; x++)
-            for (int y = 0; y < 5; y++)
-                if (is_position_free(board, (uint_fast16_t)x, (uint_fast16_t)y))
-                    empty_count++;
-        igText("Empty cells: %d", empty_count);
+        igText("Empty cells:");
+        int found = 0;
+        for (int x = 0; x < 4; x++) {
+            for (int y = 0; y < 5; y++) {
+                if (is_position_free(board, (uint_fast16_t)x, (uint_fast16_t)y)) {
+                    igText("  (%d, %d)", x, y);
+                    found++;
+                }
+            }
+        }
+        igText("  total: %d", found);
     }
+
+    igEnd();
+}
+
+static void draw_raw_panel(const board_t *board) {
+    if (!igBegin("Raw Data", NULL, ImGuiWindowFlags_None)) {
+        igEnd();
+        return;
+    }
+
+    igText("big_piece: %hhu", board->big_piece);
+    igSeparator();
+    igText("small_blocks:  %llu", (unsigned long long)board->small_blocks);
+    igSeparator();
+    igText("vertical_blocks:  %llu", (unsigned long long)board->vertical_blocks);
+    igText("num_vertical: %hhu", board->num_vertical);
+    igSeparator();
+    igText("horizontal_blocks:  %llu", (unsigned long long)board->horizontal_blocks);
+    igText("num_horizontal: %hhu", board->num_horizontal);
 
     igEnd();
 }
@@ -128,6 +152,7 @@ void gui_render(const board_t *board) {
 
     draw_board_panel(board);
     draw_info_panel(board);
+    draw_raw_panel(board);
 
     igRender();
     ImGui_ImplOpenGL3_RenderDrawData(igGetDrawData());
