@@ -14,12 +14,14 @@ ifeq ($(UNAME_S),Linux)
 	ECHOFLAGS := -e
 	LIBS := -lm -lglfw -lpthread -ldl -lstdc++ -lpcg_random -lGL
 	LDFLAGS := -Ldeps/glfw/build/src -Ldeps/pcg-c/src
+	STB_CFLAGS := -Wno-use-after-free
 endif
 ifeq ($(UNAME_S),Darwin)
 	CFLAGS_EXTRA := -Wno-unused-command-line-argument -Wno-strict-prototypes
 	CPPFLAGS_EXTRA := -Wno-unused-command-line-argument -Wno-mismatched-tags
 	LIBS := -lm -lglfw -lpthread -ldl -lstdc++ -lpcg_random -framework OpenGL
 	LDFLAGS := -Ldeps/glfw/build/src -Ldeps/pcg-c/src
+	STB_CFLAGS := -Wno-unknown-warning-option -Wno-unused-parameter -Wno-sign-compare -Wno-gnu-null-pointer-arithmetic
 endif
 
 OPTIMIZATION := -O2
@@ -127,7 +129,7 @@ $(BUILDDIR)/deps/glad/src/glad.o: deps/glad/src/glad.c
 $(BUILDDIR)/deps/stb/%.o: deps/stb/%.c
 	@mkdir -p "$(dir $@)"
 	@printf "[CC]\t$(subst $(CURDIR)/,,$@)\n"
-	@$(CC) $(CFLAGS_THIRDPARTY) -o "$@" -c "$<"
+	@$(CC) $(CFLAGS_THIRDPARTY) $(STB_CFLAGS) -o "$@" -c "$<"
 
 # Generic C++ compilation rule
 $(BUILDDIR)/%.o: %.cpp
