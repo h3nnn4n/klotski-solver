@@ -20,7 +20,7 @@ jobs:
 
       - name: Build GLFW
         run: |
-          cmake -B deps/glfw/build -S deps/glfw -DBUILD_SHARED_LIBS=ON
+          cmake -B deps/glfw/build -S deps/glfw -DBUILD_SHARED_LIBS=ON -DGLFW_BUILD_WAYLAND=OFF
           cmake --build deps/glfw/build
 
       - name: Build PCG
