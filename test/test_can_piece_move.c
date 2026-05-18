@@ -322,6 +322,49 @@ void test_classic_board_unmovable_pieces(void) {
     destroy_board(b);
 }
 
+void test_count_legal_moves_zero(void) {
+    board_t *b = build_board();
+    reset_board_to_classic(b);
+
+    TEST_ASSERT_EQUAL(0, board_count_legal_moves(b, 1, 0));
+    TEST_ASSERT_EQUAL(0, board_count_legal_moves(b, 1, 4));
+
+    destroy_board(b);
+}
+
+void test_count_legal_moves_one(void) {
+    board_t *b = build_board();
+    reset_board_to_classic(b);
+
+    TEST_ASSERT_EQUAL(1, board_count_legal_moves(b, 0, 4));
+    TEST_ASSERT_EQUAL(1, board_count_legal_moves(b, 3, 4));
+
+    destroy_board(b);
+}
+
+void test_count_legal_moves_multiple(void) {
+    board_t *b = build_board();
+    b->big_piece = set_big_square_position(2, 3);
+    b->small_blocks = set_small_block_position(b->small_blocks, 0, 0, 4);
+    b->small_blocks = set_small_block_position(b->small_blocks, 1, 1, 4);
+    b->small_blocks = set_small_block_position(b->small_blocks, 2, 2, 4);
+    b->small_blocks = set_small_block_position(b->small_blocks, 3, 3, 4);
+    b->num_horizontal = 1;
+    b->horizontal_blocks = set_horizontal_i_position(b->horizontal_blocks, 0, 0, 0);
+
+    TEST_ASSERT_EQUAL(2, board_count_legal_moves(b, 0, 0));
+
+    destroy_board(b);
+}
+
+void test_count_legal_moves_piece_type_none(void) {
+    board_t *b = build_board();
+
+    TEST_ASSERT_EQUAL(0, board_count_legal_moves(b, 2, 2));
+
+    destroy_board(b);
+}
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -355,6 +398,10 @@ int main(void) {
     // Classic board
     RUN_TEST(test_classic_board_movable_pieces);
     RUN_TEST(test_classic_board_unmovable_pieces);
+    RUN_TEST(test_count_legal_moves_zero);
+    RUN_TEST(test_count_legal_moves_one);
+    RUN_TEST(test_count_legal_moves_multiple);
+    RUN_TEST(test_count_legal_moves_piece_type_none);
 
     return UNITY_END();
 }

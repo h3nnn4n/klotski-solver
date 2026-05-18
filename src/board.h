@@ -74,6 +74,7 @@ void              reset_board_to_classic(board_t *board);
 bool              is_board_valid(const board_t *board);
 bool              is_board_solved(const board_t *board);
 bool              can_piece_move(const board_t *board, uint_fast16_t x, uint_fast16_t y);
+int               board_count_legal_moves(const board_t *board, uint_fast16_t x, uint_fast16_t y);
 does_piece_fit_fn get_does_piece_fit_fn(piece_type_t type);
 
 board_t board_clone(const board_t *board);

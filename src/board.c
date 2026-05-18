@@ -315,7 +315,7 @@ void board_move_piece_to(board_t *board, piece_type_t type, uint_fast16_t cell_x
 }
 
 void board_move_piece_to_empty_cell(board_t *board, uint_fast16_t x, uint_fast16_t y) {
-    assert(can_piece_move(board, x, y));
+    assert(board_count_legal_moves(board, x, y) == 1);
 
     piece_type_t piece_type = get_piece_at(board, x, y);
     assert(piece_type != PIECE_NONE);
@@ -376,9 +376,13 @@ void board_move_piece_to_empty_cell(board_t *board, uint_fast16_t x, uint_fast16
 }
 
 bool can_piece_move(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
+    return board_count_legal_moves(board, x, y) > 0;
+}
+
+int board_count_legal_moves(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
     piece_type_t piece_type = get_piece_at(board, x, y);
     if (piece_type == PIECE_NONE)
-        return false;
+        return 0;
 
     uint_fast16_t piece_x, piece_y;
     board_get_piece_position(board, piece_type, x, y, &piece_x, &piece_y);
@@ -407,10 +411,11 @@ bool can_piece_move(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
             max_x = 2;
             max_y = 4;
             break;
-        default: return false;
+        default: return 0;
     }
 
     int offsets[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    int found         = 0;
 
     for (int d = 0; d < 4; d++) {
         int nx = (int)x + offsets[d][0];
@@ -420,10 +425,10 @@ bool can_piece_move(const board_t *board, uint_fast16_t x, uint_fast16_t y) {
         if ((uint_fast16_t)nx == piece_x && (uint_fast16_t)ny == piece_y)
             continue;
         if (fn(&copy, (uint_fast16_t)nx, (uint_fast16_t)ny))
-            return true;
+            found++;
     }
 
-    return false;
+    return found;
 }
 
 // =============================================================================
