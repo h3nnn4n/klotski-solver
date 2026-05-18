@@ -73,7 +73,7 @@ static bool is_same_piece(const board_t *board, uint_fast16_t x1, uint_fast16_t 
 }
 
 static void draw_piece(const ImVec2 origin, float cell_size, float padding, ImDrawList *dl, piece_type_t type,
-                       uint_fast16_t px, uint_fast16_t py, ImU32 fill_col, ImU32 border_col, const char *label) {
+                       uint_fast16_t px, uint_fast16_t py, ImU32 fill_col, ImU32 border_col) {
     int pw, ph;
     get_piece_cell_size(type, &pw, &ph);
 
@@ -82,11 +82,6 @@ static void draw_piece(const ImVec2 origin, float cell_size, float padding, ImDr
 
     ImDrawList_AddRectFilled(dl, p0, p1, fill_col, 0, 0);
     ImDrawList_AddRect(dl, p0, p1, border_col, 0, 1.0f, ImDrawFlags_None);
-
-    float tw = (float)(pw)*cell_size + (float)(pw - 1) * padding;
-    float th = (float)(ph)*cell_size + (float)(ph - 1) * padding;
-    igSetCursorScreenPos((ImVec2){p0.x + tw / 2 - 8, p0.y + th / 2 - 6});
-    igTextColored((ImVec4){1, 1, 1, 1}, "%s", label);
 }
 
 static void draw_board_panel(board_t *board) {
@@ -106,8 +101,6 @@ static void draw_board_panel(board_t *board) {
     colors[2] = igColorConvertFloat4ToU32((ImVec4){60.0f / 255, 100.0f / 255, 220.0f / 255, 1});
     colors[3] = igColorConvertFloat4ToU32((ImVec4){220.0f / 255, 180.0f / 255, 40.0f / 255, 1});
 
-    const char *labels[4] = {"2x2", "1x1", " |", "--"};
-
     ImU32 dim    = igColorConvertFloat4ToU32((ImVec4){30.0f / 255, 30.0f / 255, 30.0f / 255, 1});
     ImU32 border = igColorConvertFloat4ToU32((ImVec4){80.0f / 255, 80.0f / 255, 80.0f / 255, 1});
 
@@ -125,25 +118,25 @@ static void draw_board_panel(board_t *board) {
     {
         uint_fast16_t bx = get_x_position_from_big_square(board->big_piece);
         uint_fast16_t by = get_y_position_from_big_square(board->big_piece);
-        draw_piece(origin, cell_size, padding, dl, PIECE_BIG_SQUARE, bx, by, colors[0], border, labels[0]);
+        draw_piece(origin, cell_size, padding, dl, PIECE_BIG_SQUARE, bx, by, colors[0], border);
     }
 
     for (uint_fast8_t i = 0; i < 4; i++) {
         uint_fast16_t sx = get_x_position_from_small_block(board->small_blocks, i);
         uint_fast16_t sy = get_y_position_from_small_block(board->small_blocks, i);
-        draw_piece(origin, cell_size, padding, dl, PIECE_SMALL_BLOCK, sx, sy, colors[1], border, labels[1]);
+        draw_piece(origin, cell_size, padding, dl, PIECE_SMALL_BLOCK, sx, sy, colors[1], border);
     }
 
     for (uint_fast8_t i = 0; i < board->num_vertical; i++) {
         uint_fast16_t vx = get_x_position_from_vertical_i(board->vertical_blocks, i);
         uint_fast16_t vy = get_y_position_from_vertical_i(board->vertical_blocks, i);
-        draw_piece(origin, cell_size, padding, dl, PIECE_VERTICAL_I, vx, vy, colors[2], border, labels[2]);
+        draw_piece(origin, cell_size, padding, dl, PIECE_VERTICAL_I, vx, vy, colors[2], border);
     }
 
     for (uint_fast8_t i = 0; i < board->num_horizontal; i++) {
         uint_fast16_t hx = get_x_position_from_horizontal_i(board->horizontal_blocks, i);
         uint_fast16_t hy = get_y_position_from_horizontal_i(board->horizontal_blocks, i);
-        draw_piece(origin, cell_size, padding, dl, PIECE_HORIZONTAL_I, hx, hy, colors[3], border, labels[3]);
+        draw_piece(origin, cell_size, padding, dl, PIECE_HORIZONTAL_I, hx, hy, colors[3], border);
     }
 
     ImVec2 mouse = igGetMousePos();
