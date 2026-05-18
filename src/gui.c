@@ -24,7 +24,7 @@ void gui_terminate(void) {
     gui_ctx = NULL;
 }
 
-static void draw_board_panel(const board_t *board) {
+static void draw_board_panel(board_t *board) {
     if (!igBegin("Board", NULL, ImGuiWindowFlags_None)) {
         igEnd();
         return;
@@ -65,6 +65,27 @@ static void draw_board_panel(const board_t *board) {
                 igSetCursorScreenPos(tp);
                 igTextColored((ImVec4){1, 1, 1, 1}, "%s", labels[(int)piece]);
             }
+        }
+    }
+
+    ImVec2 mouse = igGetMousePos();
+    int    gx    = (int)((mouse.x - origin.x) / (cell_size + padding));
+    int    gy    = (int)((mouse.y - origin.y) / (cell_size + padding));
+
+    if (gx >= 0 && gx < 4 && gy >= 0 && gy < 5 && mouse.x >= origin.x && mouse.y >= origin.y) {
+        piece_type_t piece = get_piece_at(board, (uint_fast16_t)gx, (uint_fast16_t)gy);
+        if (piece != PIECE_NONE) {
+            bool        movable = can_piece_move(board, (uint_fast16_t)gx, (uint_fast16_t)gy);
+            ImU32       border  = igColorConvertFloat4ToU32(movable ? (ImVec4){0, 1, 0, 1} : (ImVec4){1, 0, 0, 1});
+            const float cellsz  = cell_size + padding;
+            float       cx      = origin.x + (float)gx * cellsz;
+            float       cy      = origin.y + (float)gy * cellsz;
+            ImVec2      p0      = {cx, cy};
+            ImVec2      p1      = {cx + cell_size, cy + cell_size};
+            ImDrawList_AddRect(dl, p0, p1, border, 0, 2.0f, ImDrawFlags_None);
+
+            if (movable && igIsMouseClicked_Bool(ImGuiMouseButton_Left, false))
+                board_move_piece_to_empty_cell(board, (uint_fast16_t)gx, (uint_fast16_t)gy);
         }
     }
 
@@ -149,7 +170,7 @@ static void draw_raw_panel(const board_t *board) {
     igEnd();
 }
 
-void gui_render(const board_t *board) {
+void gui_render(board_t *board) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     igNewFrame();

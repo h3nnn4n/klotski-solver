@@ -23,6 +23,6 @@ void ImGui_ImplGlfw_NewFrame(void);
 
 void gui_init(GLFWwindow *win);
 void gui_terminate(void);
-void gui_render(const board_t *board);
+void gui_render(board_t *board);
 
 #endif
