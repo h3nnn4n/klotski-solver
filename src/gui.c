@@ -17,6 +17,10 @@ void gui_init(GLFWwindow *win) {
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     igStyleColorsDark(NULL);
+
+    ImGuiStyle *style = igGetStyle();
+    ImGuiStyle_ScaleAllSizes(style, 2.0f);
+    style->FontScaleDpi = 2.0f;
 }
 
 void gui_terminate(void) {
@@ -90,8 +94,8 @@ static void draw_board_panel(board_t *board) {
         return;
     }
 
-    const float cell_size = 40.0f;
-    const float padding   = 2.0f;
+    const float cell_size = 160.0f;
+    const float padding   = 8.0f;
     ImDrawList *dl        = igGetWindowDrawList();
     ImVec2      origin    = igGetCursorScreenPos();
 

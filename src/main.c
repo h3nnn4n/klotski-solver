@@ -31,7 +31,7 @@ int main(void) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
-    GLFWwindow *window = glfwCreateWindow(1280, 720, "C Template", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(2560, 1440, "C Template", NULL, NULL);
     if (!window) {
         fprintf(stderr, "Failed to create GLFW window\n");
         glfwTerminate();
@@ -48,7 +48,7 @@ int main(void) {
         return 1;
     }
 
-    glViewport(0, 0, 1280, 720);
+    glViewport(0, 0, 2560, 1440);
 
     gui_init(window);
 
