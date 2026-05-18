@@ -365,6 +365,65 @@ void test_count_legal_moves_piece_type_none(void) {
     destroy_board(b);
 }
 
+static void test_count_legal_moves_same_from_all_cells(board_t *b, uint_fast16_t px, uint_fast16_t py) {
+    piece_type_t type = get_piece_at(b, px, py);
+    int          ref  = board_count_legal_moves(b, px, py);
+
+    for (int dy = 0; dy < 2; dy++) {
+        for (int dx = 0; dx < 2; dx++) {
+            uint_fast16_t cx = px + (uint_fast16_t)dx;
+            uint_fast16_t cy = py + (uint_fast16_t)dy;
+            if (type == PIECE_VERTICAL_I && dx > 0) continue;
+            if (type == PIECE_HORIZONTAL_I && dy > 0) continue;
+            if (get_piece_at(b, cx, cy) != type) continue;
+            TEST_ASSERT_EQUAL_MESSAGE(ref, board_count_legal_moves(b, cx, cy),
+                                      "inconsistent count for different cell of same piece");
+        }
+    }
+}
+
+void test_count_legal_moves_big_square_any_cell(void) {
+    board_t *b = build_board();
+    b->big_piece  = set_big_square_position(1, 2);
+    b->small_blocks = set_small_block_position(b->small_blocks, 0, 0, 0);
+    b->small_blocks = set_small_block_position(b->small_blocks, 1, 0, 4);
+    b->small_blocks = set_small_block_position(b->small_blocks, 2, 3, 0);
+    b->small_blocks = set_small_block_position(b->small_blocks, 3, 3, 4);
+
+    test_count_legal_moves_same_from_all_cells(b, 1, 2);
+
+    destroy_board(b);
+}
+
+void test_count_legal_moves_vertical_i_any_cell(void) {
+    board_t *b = build_board();
+    b->small_blocks = set_small_block_position(b->small_blocks, 0, 0, 4);
+    b->small_blocks = set_small_block_position(b->small_blocks, 1, 1, 4);
+    b->small_blocks = set_small_block_position(b->small_blocks, 2, 2, 4);
+    b->small_blocks = set_small_block_position(b->small_blocks, 3, 3, 4);
+    b->num_vertical = 1;
+    b->vertical_blocks = set_vertical_i_position(b->vertical_blocks, 0, 0, 0);
+
+    test_count_legal_moves_same_from_all_cells(b, 0, 0);
+
+    destroy_board(b);
+}
+
+void test_count_legal_moves_horizontal_i_any_cell(void) {
+    board_t *b = build_board();
+    b->big_piece  = set_big_square_position(2, 3);
+    b->small_blocks = set_small_block_position(b->small_blocks, 0, 0, 4);
+    b->small_blocks = set_small_block_position(b->small_blocks, 1, 1, 4);
+    b->small_blocks = set_small_block_position(b->small_blocks, 2, 2, 4);
+    b->small_blocks = set_small_block_position(b->small_blocks, 3, 3, 4);
+    b->num_horizontal = 1;
+    b->horizontal_blocks = set_horizontal_i_position(b->horizontal_blocks, 0, 0, 0);
+
+    test_count_legal_moves_same_from_all_cells(b, 0, 0);
+
+    destroy_board(b);
+}
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -402,6 +461,11 @@ int main(void) {
     RUN_TEST(test_count_legal_moves_one);
     RUN_TEST(test_count_legal_moves_multiple);
     RUN_TEST(test_count_legal_moves_piece_type_none);
+
+    // Any-cell consistency
+    RUN_TEST(test_count_legal_moves_big_square_any_cell);
+    RUN_TEST(test_count_legal_moves_vertical_i_any_cell);
+    RUN_TEST(test_count_legal_moves_horizontal_i_any_cell);
 
     return UNITY_END();
 }

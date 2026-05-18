@@ -155,11 +155,9 @@ static void draw_board_panel(board_t *board) {
             uint_fast16_t best_nx = 0, best_ny = 0;
 
             for (int d = 0; d < 4; d++) {
-                int nx = (int)sel_x + offsets[d][0];
-                int ny = (int)sel_y + offsets[d][1];
+                int nx = (int)px + offsets[d][0];
+                int ny = (int)py + offsets[d][1];
                 if (nx < 0 || ny < 0 || nx > max_x || ny > max_y)
-                    continue;
-                if ((uint_fast16_t)nx == px && (uint_fast16_t)ny == py)
                     continue;
                 if (!fn(&copy, (uint_fast16_t)nx, (uint_fast16_t)ny))
                     continue;

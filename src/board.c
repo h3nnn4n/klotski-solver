@@ -358,11 +358,9 @@ void board_move_piece_to_empty_cell(board_t *board, uint_fast16_t x, uint_fast16
     uint_fast16_t new_x = 0, new_y = 0;
 
     for (int d = 0; d < 4; d++) {
-        int nx = (int)x + offsets[d][0];
-        int ny = (int)y + offsets[d][1];
+        int nx = (int)piece_x + offsets[d][0];
+        int ny = (int)piece_y + offsets[d][1];
         if (nx < 0 || ny < 0 || nx > max_x || ny > max_y)
-            continue;
-        if ((uint_fast16_t)nx == piece_x && (uint_fast16_t)ny == piece_y)
             continue;
         if (fn(&copy, (uint_fast16_t)nx, (uint_fast16_t)ny)) {
             new_x = (uint_fast16_t)nx;
@@ -418,11 +416,9 @@ int board_count_legal_moves(const board_t *board, uint_fast16_t x, uint_fast16_t
     int found         = 0;
 
     for (int d = 0; d < 4; d++) {
-        int nx = (int)x + offsets[d][0];
-        int ny = (int)y + offsets[d][1];
+        int nx = (int)piece_x + offsets[d][0];
+        int ny = (int)piece_y + offsets[d][1];
         if (nx < 0 || ny < 0 || nx > max_x || ny > max_y)
-            continue;
-        if ((uint_fast16_t)nx == piece_x && (uint_fast16_t)ny == piece_y)
             continue;
         if (fn(&copy, (uint_fast16_t)nx, (uint_fast16_t)ny))
             found++;
