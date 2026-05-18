@@ -281,6 +281,19 @@ static void draw_board_panel(board_t *board) {
         }
     }
 
+    {
+        int    goal_x = 1, goal_y = 3;
+        ImVec2 gp0, gp1;
+        piece_screen_rect(origin, cell_size, padding, goal_x, goal_y, 2, 2, &gp0, &gp1);
+
+        float  gap    = 12.0f;
+        float  thick  = 10.0f;
+        ImU32  yellow = igColorConvertFloat4ToU32((ImVec4){1, 0.8f, 0, 1});
+        ImVec2 ip0    = {gp0.x, gp1.y + gap};
+        ImVec2 ip1    = {gp1.x, gp1.y + gap + thick};
+        ImDrawList_AddRectFilled(dl, ip0, ip1, yellow, 0, 0);
+    }
+
     igEnd();
 }
 
