@@ -26,6 +26,69 @@ void gui_terminate(void) {
     gui_ctx = NULL;
 }
 
+static void piece_screen_rect(const ImVec2 origin, float cs, float pad, uint_fast16_t px, uint_fast16_t py, int pw,
+                              int ph, ImVec2 *out_p0, ImVec2 *out_p1) {
+    float cellsz = cs + pad;
+    out_p0->x    = origin.x + (float)px * cellsz;
+    out_p0->y    = origin.y + (float)py * cellsz;
+    out_p1->x    = out_p0->x + (float)pw * cs + (float)(pw - 1) * pad;
+    out_p1->y    = out_p0->y + (float)ph * cs + (float)(ph - 1) * pad;
+}
+
+static void get_piece_cell_size(piece_type_t type, int *out_w, int *out_h) {
+    switch (type) {
+        case PIECE_BIG_SQUARE:
+            *out_w = 2;
+            *out_h = 2;
+            break;
+        case PIECE_SMALL_BLOCK:
+            *out_w = 1;
+            *out_h = 1;
+            break;
+        case PIECE_VERTICAL_I:
+            *out_w = 1;
+            *out_h = 2;
+            break;
+        case PIECE_HORIZONTAL_I:
+            *out_w = 2;
+            *out_h = 1;
+            break;
+        default:
+            *out_w = 1;
+            *out_h = 1;
+            break;
+    }
+}
+
+static bool is_same_piece(const board_t *board, uint_fast16_t x1, uint_fast16_t y1, uint_fast16_t x2,
+                          uint_fast16_t y2) {
+    piece_type_t t1 = get_piece_at(board, x1, y1);
+    piece_type_t t2 = get_piece_at(board, x2, y2);
+    if (t1 != t2 || t1 == PIECE_NONE)
+        return false;
+    uint_fast16_t px1, py1, px2, py2;
+    board_get_piece_position(board, t1, x1, y1, &px1, &py1);
+    board_get_piece_position(board, t2, x2, y2, &px2, &py2);
+    return px1 == px2 && py1 == py2;
+}
+
+static void draw_piece(const ImVec2 origin, float cell_size, float padding, ImDrawList *dl, piece_type_t type,
+                       uint_fast16_t px, uint_fast16_t py, ImU32 fill_col, ImU32 border_col, const char *label) {
+    int pw, ph;
+    get_piece_cell_size(type, &pw, &ph);
+
+    ImVec2 p0, p1;
+    piece_screen_rect(origin, cell_size, padding, px, py, pw, ph, &p0, &p1);
+
+    ImDrawList_AddRectFilled(dl, p0, p1, fill_col, 0, 0);
+    ImDrawList_AddRect(dl, p0, p1, border_col, 0, 1.0f, ImDrawFlags_None);
+
+    float tw = (float)(pw)*cell_size + (float)(pw - 1) * padding;
+    float th = (float)(ph)*cell_size + (float)(ph - 1) * padding;
+    igSetCursorScreenPos((ImVec2){p0.x + tw / 2 - 8, p0.y + th / 2 - 6});
+    igTextColored((ImVec4){1, 1, 1, 1}, "%s", label);
+}
+
 static void draw_board_panel(board_t *board) {
     if (!igBegin("Board", NULL, ImGuiWindowFlags_None)) {
         igEnd();
@@ -45,29 +108,42 @@ static void draw_board_panel(board_t *board) {
 
     const char *labels[4] = {"2x2", "1x1", " |", "--"};
 
+    ImU32 dim    = igColorConvertFloat4ToU32((ImVec4){30.0f / 255, 30.0f / 255, 30.0f / 255, 1});
+    ImU32 border = igColorConvertFloat4ToU32((ImVec4){80.0f / 255, 80.0f / 255, 80.0f / 255, 1});
+
     for (int y = 0; y < 5; y++) {
         for (int x = 0; x < 4; x++) {
             float  cx = origin.x + (float)x * (cell_size + padding);
             float  cy = origin.y + (float)y * (cell_size + padding);
             ImVec2 p0 = {cx, cy};
             ImVec2 p1 = {cx + cell_size, cy + cell_size};
-
-            piece_type_t piece = get_piece_at(board, (uint_fast16_t)x, (uint_fast16_t)y);
-            ImU32        col   = igColorConvertFloat4ToU32((ImVec4){30.0f / 255, 30.0f / 255, 30.0f / 255, 1});
-            if (piece >= 0)
-                col = colors[(int)piece];
-
-            ImDrawList_AddRectFilled(dl, p0, p1, col, 0, 0);
-            ImDrawList_AddRect(dl, p0, p1,
-                               igColorConvertFloat4ToU32((ImVec4){80.0f / 255, 80.0f / 255, 80.0f / 255, 1}), 0, 1.0f,
-                               ImDrawFlags_None);
-
-            if (piece >= 0) {
-                ImVec2 tp = {cx + cell_size / 2 - 8, cy + cell_size / 2 - 6};
-                igSetCursorScreenPos(tp);
-                igTextColored((ImVec4){1, 1, 1, 1}, "%s", labels[(int)piece]);
-            }
+            ImDrawList_AddRectFilled(dl, p0, p1, dim, 0, 0);
+            ImDrawList_AddRect(dl, p0, p1, border, 0, 1.0f, ImDrawFlags_None);
         }
+    }
+
+    {
+        uint_fast16_t bx = get_x_position_from_big_square(board->big_piece);
+        uint_fast16_t by = get_y_position_from_big_square(board->big_piece);
+        draw_piece(origin, cell_size, padding, dl, PIECE_BIG_SQUARE, bx, by, colors[0], border, labels[0]);
+    }
+
+    for (uint_fast8_t i = 0; i < 4; i++) {
+        uint_fast16_t sx = get_x_position_from_small_block(board->small_blocks, i);
+        uint_fast16_t sy = get_y_position_from_small_block(board->small_blocks, i);
+        draw_piece(origin, cell_size, padding, dl, PIECE_SMALL_BLOCK, sx, sy, colors[1], border, labels[1]);
+    }
+
+    for (uint_fast8_t i = 0; i < board->num_vertical; i++) {
+        uint_fast16_t vx = get_x_position_from_vertical_i(board->vertical_blocks, i);
+        uint_fast16_t vy = get_y_position_from_vertical_i(board->vertical_blocks, i);
+        draw_piece(origin, cell_size, padding, dl, PIECE_VERTICAL_I, vx, vy, colors[2], border, labels[2]);
+    }
+
+    for (uint_fast8_t i = 0; i < board->num_horizontal; i++) {
+        uint_fast16_t hx = get_x_position_from_horizontal_i(board->horizontal_blocks, i);
+        uint_fast16_t hy = get_y_position_from_horizontal_i(board->horizontal_blocks, i);
+        draw_piece(origin, cell_size, padding, dl, PIECE_HORIZONTAL_I, hx, hy, colors[3], border, labels[3]);
     }
 
     ImVec2 mouse = igGetMousePos();
@@ -77,31 +153,25 @@ static void draw_board_panel(board_t *board) {
     static bool          sel_active;
     static uint_fast16_t sel_x, sel_y;
 
-    if (sel_active) {
-        float  cellsz = cell_size + padding;
-        float  cx     = origin.x + (float)sel_x * cellsz;
-        float  cy     = origin.y + (float)sel_y * cellsz;
-        ImVec2 p0     = {cx, cy};
-        ImVec2 p1     = {cx + cell_size, cy + cell_size};
-        ImU32  gold   = igColorConvertFloat4ToU32((ImVec4){1, 0.8f, 0, 1});
-        ImDrawList_AddRect(dl, p0, p1, gold, 0, 2.0f, ImDrawFlags_None);
-    }
-
     if (gx >= 0 && gx < 4 && gy >= 0 && gy < 5 && mouse.x >= origin.x && mouse.y >= origin.y) {
         piece_type_t piece = get_piece_at(board, (uint_fast16_t)gx, (uint_fast16_t)gy);
 
         if (piece != PIECE_NONE) {
-            bool   movable = can_piece_move(board, (uint_fast16_t)gx, (uint_fast16_t)gy);
-            ImU32  border  = igColorConvertFloat4ToU32(movable ? (ImVec4){0, 1, 0, 1} : (ImVec4){1, 0, 0, 1});
-            float  cellsz  = cell_size + padding;
-            float  cx      = origin.x + (float)gx * cellsz;
-            float  cy      = origin.y + (float)gy * cellsz;
-            ImVec2 p0      = {cx, cy};
-            ImVec2 p1      = {cx + cell_size, cy + cell_size};
-            ImDrawList_AddRect(dl, p0, p1, border, 0, 2.0f, ImDrawFlags_None);
+            uint_fast16_t hx, hy;
+            board_get_piece_position(board, piece, (uint_fast16_t)gx, (uint_fast16_t)gy, &hx, &hy);
+
+            int hw, hh;
+            get_piece_cell_size(piece, &hw, &hh);
+
+            ImVec2 hp0, hp1;
+            piece_screen_rect(origin, cell_size, padding, hx, hy, hw, hh, &hp0, &hp1);
+
+            bool  movable = can_piece_move(board, (uint_fast16_t)gx, (uint_fast16_t)gy);
+            ImU32 hl_col  = igColorConvertFloat4ToU32(movable ? (ImVec4){0, 1, 0, 1} : (ImVec4){1, 0, 0, 1});
+            ImDrawList_AddRect(dl, hp0, hp1, hl_col, 0, 2.0f, ImDrawFlags_None);
 
             if (igIsMouseClicked_Bool(ImGuiMouseButton_Left, false)) {
-                if (sel_active && (uint_fast16_t)gx == sel_x && (uint_fast16_t)gy == sel_y) {
+                if (sel_active && is_same_piece(board, sel_x, sel_y, (uint_fast16_t)gx, (uint_fast16_t)gy)) {
                     sel_active = false;
                 } else if (movable) {
                     int count = board_count_legal_moves(board, (uint_fast16_t)gx, (uint_fast16_t)gy);
@@ -196,6 +266,21 @@ static void draw_board_panel(board_t *board) {
 
             board_move_piece_to(board, ptype, sel_x, sel_y, best_nx, best_ny);
             sel_active = false;
+        }
+    }
+
+    if (sel_active) {
+        piece_type_t stype = get_piece_at(board, sel_x, sel_y);
+        if (stype != PIECE_NONE) {
+            uint_fast16_t spx, spy;
+            board_get_piece_position(board, stype, sel_x, sel_y, &spx, &spy);
+            int sw, sh;
+            get_piece_cell_size(stype, &sw, &sh);
+
+            ImVec2 sp0, sp1;
+            piece_screen_rect(origin, cell_size, padding, spx, spy, sw, sh, &sp0, &sp1);
+            ImU32 gold = igColorConvertFloat4ToU32((ImVec4){1, 0.8f, 0, 1});
+            ImDrawList_AddRect(dl, sp0, sp1, gold, 0, 2.0f, ImDrawFlags_None);
         }
     }
 
