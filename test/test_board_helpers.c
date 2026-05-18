@@ -222,6 +222,100 @@ void test_board_get_piece_position_horizontal_i(void) {
     destroy_board(b);
 }
 
+void test_is_board_equal_identical_classic(void) {
+    board_t *a = build_board();
+    board_t *b = build_board();
+    reset_board_to_classic(a);
+    reset_board_to_classic(b);
+
+    TEST_ASSERT_TRUE(is_board_equal(a, b));
+
+    destroy_board(a);
+    destroy_board(b);
+}
+
+void test_is_board_equal_self_clone(void) {
+    board_t *a = build_board();
+    reset_board_to_classic(a);
+    board_t clone = board_clone(a);
+
+    TEST_ASSERT_TRUE(is_board_equal(a, &clone));
+
+    destroy_board(a);
+}
+
+void test_is_board_equal_different_big_square(void) {
+    board_t *a = build_board();
+    board_t *b = build_board();
+    reset_board_to_classic(a);
+    reset_board_to_classic(b);
+
+    b->big_piece = set_big_square_position(2, 2);
+
+    TEST_ASSERT_FALSE(is_board_equal(a, b));
+
+    destroy_board(a);
+    destroy_board(b);
+}
+
+void test_is_board_equal_different_small_block(void) {
+    board_t *a = build_board();
+    board_t *b = build_board();
+    reset_board_to_classic(a);
+    reset_board_to_classic(b);
+
+    b->small_blocks = set_small_block_position(b->small_blocks, 0, 0, 0);
+
+    TEST_ASSERT_FALSE(is_board_equal(a, b));
+
+    destroy_board(a);
+    destroy_board(b);
+}
+
+void test_is_board_equal_different_vertical_i(void) {
+    board_t *a = build_board();
+    board_t *b = build_board();
+    b->num_vertical = 1;
+    b->vertical_blocks = set_vertical_i_position(b->vertical_blocks, 0, 0, 0);
+
+    board_t clone = board_clone(b);
+    b->vertical_blocks = set_vertical_i_position(b->vertical_blocks, 0, 1, 0);
+
+    TEST_ASSERT_FALSE(is_board_equal(&clone, b));
+
+    destroy_board(a);
+    destroy_board(b);
+}
+
+void test_is_board_equal_different_horizontal_i(void) {
+    board_t *a = build_board();
+    board_t *b = build_board();
+    b->num_horizontal = 1;
+    b->horizontal_blocks = set_horizontal_i_position(b->horizontal_blocks, 0, 0, 0);
+
+    board_t clone = board_clone(b);
+    b->horizontal_blocks = set_horizontal_i_position(b->horizontal_blocks, 0, 0, 1);
+
+    TEST_ASSERT_FALSE(is_board_equal(&clone, b));
+
+    destroy_board(a);
+    destroy_board(b);
+}
+
+void test_is_board_equal_different_vertical_count(void) {
+    board_t *a = build_board();
+    board_t *b = build_board();
+    reset_board_to_classic(a);
+    reset_board_to_classic(b);
+
+    b->num_vertical = 3;
+
+    TEST_ASSERT_FALSE(is_board_equal(a, b));
+
+    destroy_board(a);
+    destroy_board(b);
+}
+
 int main(void) {
     UNITY_BEGIN();
 
@@ -240,6 +334,13 @@ int main(void) {
     RUN_TEST(test_board_get_piece_position_small_block);
     RUN_TEST(test_board_get_piece_position_vertical_i);
     RUN_TEST(test_board_get_piece_position_horizontal_i);
+    RUN_TEST(test_is_board_equal_identical_classic);
+    RUN_TEST(test_is_board_equal_self_clone);
+    RUN_TEST(test_is_board_equal_different_big_square);
+    RUN_TEST(test_is_board_equal_different_small_block);
+    RUN_TEST(test_is_board_equal_different_vertical_i);
+    RUN_TEST(test_is_board_equal_different_horizontal_i);
+    RUN_TEST(test_is_board_equal_different_vertical_count);
 
     return UNITY_END();
 }

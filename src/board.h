@@ -89,6 +89,8 @@ void board_move_piece_to(board_t *board, piece_type_t type, uint_fast16_t cell_x
                          uint_fast16_t new_x, uint_fast16_t new_y);
 void board_move_piece_to_empty_cell(board_t *board, uint_fast16_t x, uint_fast16_t y);
 
+bool is_board_equal(const board_t *a, const board_t *b);
+
 // 2x2 piece functions
 bool          is_position_free_of_big_square(const board_t *board, uint_fast16_t x, uint_fast16_t y);
 bool          does_big_square_fit_in(const board_t *board, uint_fast16_t x, uint_fast16_t y);

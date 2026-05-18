@@ -145,6 +145,12 @@ board_t board_clone(const board_t *board) {
     return *board;
 }
 
+bool is_board_equal(const board_t *a, const board_t *b) {
+    return a->big_piece == b->big_piece && a->small_blocks == b->small_blocks && a->num_vertical == b->num_vertical &&
+           a->vertical_blocks == b->vertical_blocks && a->num_horizontal == b->num_horizontal &&
+           a->horizontal_blocks == b->horizontal_blocks;
+}
+
 void board_remove_big_square(board_t *board) {
     assert(board != NULL);
     board->big_piece = 15;
@@ -158,7 +164,7 @@ void board_remove_small_block(board_t *board, uint_fast16_t x, uint_fast16_t y) 
         uint_fast16_t sx = get_x_position_from_small_block(board->small_blocks, i);
         uint_fast16_t sy = get_y_position_from_small_block(board->small_blocks, i);
         if (sx == x && sy == y) {
-            board->small_blocks &= ~((uint64_t)0x1F << (i * 5));
+            board->small_blocks |= ((uint64_t)0x1F << (i * 5));
             return;
         }
     }
