@@ -2,6 +2,7 @@
 #include "pdb_2x2.h"
 
 #include <assert.h>
+#include <dirent.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -179,25 +180,81 @@ bool pdb_load_chunk(pdb_t *pdb, size_t chunk_index) {
 bool pdb_load_from_disk(pdb_t *pdb) {
     assert(pdb != NULL);
 
+    pdb->loaded        = true;
+    pdb->loaded_chunks = 0;
+
+    size_t valid_chunks = pdb_count_existing_chunks(pdb);
+
+    for (size_t ci = 0; ci < valid_chunks; ci++) {
+        if (!pdb_load_chunk(pdb, ci))
+            break;
+        pdb->loaded_chunks = ci + 1;
+    }
+
+    return true;
+}
+
+size_t pdb_count_existing_chunks(const pdb_t *pdb) {
+    assert(pdb != NULL);
+
     char dirpath[1024];
     snprintf(dirpath, sizeof(dirpath), "%s/%s", PDB_CACHE_DIR, pdb_get_type_folder_name(pdb->type));
 
-    struct stat st;
-    if (stat(dirpath, &st) != 0) {
-        pdb->loaded        = true;
-        pdb->loaded_chunks = 0;
-        return true;
-    }
+    DIR *dir = opendir(dirpath);
+    if (dir == NULL)
+        return 0;
 
-    if (!pdb_load_chunk(pdb, 0)) {
-        pdb->loaded        = true;
-        pdb->loaded_chunks = 0;
-        return true;
-    }
+    bool found[4096];
+    memset(found, 0, sizeof(found));
 
-    pdb->loaded        = true;
-    pdb->loaded_chunks = 1;
-    return true;
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        if (strlen(entry->d_name) != (size_t)PDB_CHUNK_PAD)
+            continue;
+
+        char *endptr;
+        long  idx = strtol(entry->d_name, &endptr, 10);
+        if (idx < 0 || (size_t)idx >= pdb->total_chunks)
+            continue;
+        if (*endptr != '\0')
+            continue;
+
+        char filepath[1024];
+        pdb_chunk_filepath(pdb, (size_t)idx, filepath, sizeof(filepath));
+
+        FILE *f = fopen(filepath, "rb");
+        if (f == NULL)
+            continue;
+
+        uint32_t header[3];
+        if (fread(header, sizeof(header), 1, f) != 1) {
+            fclose(f);
+            continue;
+        }
+
+        if (header[2] != (uint32_t)pdb->entry_size) {
+            fclose(f);
+            continue;
+        }
+
+        long fsize;
+        fseek(f, 0, SEEK_END);
+        fsize = ftell(f);
+        fclose(f);
+
+        size_t expected_size = (long)(sizeof(header) + (size_t)header[1] * pdb->entry_size);
+        if ((long)expected_size != fsize)
+            continue;
+
+        found[idx] = true;
+    }
+    closedir(dir);
+
+    size_t count = 0;
+    for (size_t i = 0; i < pdb->total_chunks && found[i]; i++)
+        count++;
+
+    return count;
 }
 
 void pdb_attach_to_solver(solver_context_t *ctx) {

@@ -41,6 +41,8 @@ bool pdb_save_chunk(const pdb_t *pdb, size_t chunk_index);
 bool pdb_load_chunk(pdb_t *pdb, size_t chunk_index);
 bool pdb_load_from_disk(pdb_t *pdb);
 
+size_t pdb_count_existing_chunks(const pdb_t *pdb);
+
 void pdb_attach_to_solver(solver_context_t *ctx);
 
 #endif
