@@ -4,7 +4,7 @@
 
 #include "pdb.h"
 
-void pdb_build_2x2_mdist(void) {
+void pdb_build_2x2_mdist(pdb_progress_fn progress, void *user_data) {
     pdb_t *old = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
 
     pdb_t *pdb = pdb_build(PDB_BIG_SQUARE_MANHATTAN, 12, 1);
@@ -14,6 +14,8 @@ void pdb_build_2x2_mdist(void) {
         pdb_set_global(PDB_BIG_SQUARE_MANHATTAN, pdb);
         if (old != NULL)
             pdb_destroy(old);
+        if (progress)
+            progress(PDB_BIG_SQUARE_MANHATTAN, 12, 12, user_data);
         return;
     }
 
@@ -22,6 +24,8 @@ void pdb_build_2x2_mdist(void) {
             size_t  index = x + y * 3;
             uint8_t dist  = (uint8_t)(abs(x - 1) + abs(y - 3));
             pdb_set_entry(pdb, index, &dist);
+            if (progress)
+                progress(PDB_BIG_SQUARE_MANHATTAN, index + 1, 12, user_data);
         }
     }
 

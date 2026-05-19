@@ -24,6 +24,16 @@ typedef struct {
     size_t     loaded_chunks;
 } pdb_t;
 
+typedef void (*pdb_progress_fn)(pdb_type_t type, size_t current, size_t total, void *user_data);
+
+typedef struct {
+    pdb_type_t  type;
+    const char *name;
+    const char *pieces;
+    size_t      total_entries;
+    size_t      entry_size;
+} pdb_type_info_t;
+
 pdb_t *pdb_build(pdb_type_t type, size_t total_entries, size_t entry_size);
 void   pdb_destroy(pdb_t *pdb);
 
@@ -47,5 +57,20 @@ bool pdb_validate_chunk(const pdb_t *pdb, size_t chunk_index);
 bool pdb_validate_all(const pdb_t *pdb);
 
 void pdb_attach_to_solver(solver_context_t *ctx);
+
+const pdb_type_info_t *pdb_get_type_info(pdb_type_t type);
+pdb_type_t             pdb_find_type_by_name(const char *name);
+size_t                 pdb_get_total_size_on_disk(pdb_type_t type);
+
+void pdb_build_all(pdb_progress_fn progress, void *user_data);
+void pdb_rebuild_all(pdb_progress_fn progress, void *user_data);
+void pdb_delete_cache_all(void);
+void pdb_verify_all(void);
+void pdb_list_all(void);
+
+void pdb_build_named(const char *name, pdb_progress_fn progress, void *user_data);
+void pdb_rebuild_named(const char *name, pdb_progress_fn progress, void *user_data);
+void pdb_delete_cache_named(const char *name);
+void pdb_verify_named(const char *name);
 
 #endif

@@ -1,9 +1,11 @@
 #include <stdio.h>
+#include <string.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "board.h"
+#include "cli.h"
 #include "gui.h"
 
 static void error_callback(int error, const char *description) {
@@ -18,7 +20,7 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
     }
 }
 
-int main(void) {
+static int run_gui(void) {
     glfwSetErrorCallback(error_callback);
 
     if (!glfwInit()) {
@@ -71,4 +73,11 @@ int main(void) {
     glfwTerminate();
 
     return 0;
+}
+
+int main(int argc, char **argv) {
+    if (argc > 1 && strcmp(argv[1], "--gui") == 0)
+        return run_gui();
+
+    return cli_run(argc, argv);
 }

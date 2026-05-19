@@ -22,7 +22,7 @@ static uint8_t expected_dist(int x, int y) {
 }
 
 void test_build_2x2_runs(void) {
-    pdb_build_2x2_mdist();
+    pdb_build_2x2_mdist(NULL, NULL);
 
     pdb_t *pdb = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
     TEST_ASSERT_NOT_NULL(pdb);
@@ -32,7 +32,7 @@ void test_build_2x2_runs(void) {
 }
 
 void test_2x2_goal_distance_zero(void) {
-    pdb_build_2x2_mdist();
+    pdb_build_2x2_mdist(NULL, NULL);
     pdb_t *pdb = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
 
     uint8_t dist = 0;
@@ -42,7 +42,7 @@ void test_2x2_goal_distance_zero(void) {
 }
 
 void test_2x2_corner_distances(void) {
-    pdb_build_2x2_mdist();
+    pdb_build_2x2_mdist(NULL, NULL);
     pdb_t *pdb = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
 
     uint8_t d00 = 0, d20 = 0, d03 = 0, d23 = 0;
@@ -58,7 +58,7 @@ void test_2x2_corner_distances(void) {
 }
 
 void test_2x2_all_entries_correct(void) {
-    pdb_build_2x2_mdist();
+    pdb_build_2x2_mdist(NULL, NULL);
     pdb_t *pdb = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
 
     for (int y = 0; y < 4; y++) {
@@ -72,14 +72,14 @@ void test_2x2_all_entries_correct(void) {
 }
 
 void test_2x2_rebuild_no_leak(void) {
-    pdb_build_2x2_mdist();
+    pdb_build_2x2_mdist(NULL, NULL);
     pdb_t *first = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
 
     TEST_ASSERT_NOT_NULL(first);
     uint8_t val = 99;
     pdb_set_entry(first, 0, &val);
 
-    pdb_build_2x2_mdist();
+    pdb_build_2x2_mdist(NULL, NULL);
     pdb_t *second = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
 
     TEST_ASSERT_NOT_NULL(second);
@@ -91,7 +91,7 @@ void test_2x2_rebuild_no_leak(void) {
 }
 
 void test_2x2_every_entry_is_valid_distance(void) {
-    pdb_build_2x2_mdist();
+    pdb_build_2x2_mdist(NULL, NULL);
     pdb_t *pdb = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
 
     for (size_t i = 0; i < 12; i++) {

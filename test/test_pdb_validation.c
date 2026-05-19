@@ -157,7 +157,7 @@ void test_validate_all_with_one_bad(void) {
 }
 
 void test_2x2_resume_from_disk(void) {
-    pdb_build_2x2_mdist();
+    pdb_build_2x2_mdist(NULL, NULL);
 
     pdb_t *pdb = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
     TEST_ASSERT_NOT_NULL(pdb);
@@ -169,7 +169,7 @@ void test_2x2_resume_from_disk(void) {
 
     pdb_set_global(PDB_BIG_SQUARE_MANHATTAN, NULL);
 
-    pdb_build_2x2_mdist();
+    pdb_build_2x2_mdist(NULL, NULL);
 
     pdb_t *pdb2 = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
     TEST_ASSERT_NOT_NULL(pdb2);
@@ -182,14 +182,14 @@ void test_2x2_resume_from_disk(void) {
 }
 
 void test_2x2_rebuild_from_scratch(void) {
-    pdb_build_2x2_mdist();
+    pdb_build_2x2_mdist(NULL, NULL);
 
     pdb_t *first = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
     pdb_set_global(PDB_BIG_SQUARE_MANHATTAN, NULL);
 
     rmrf("cache/pdb/pdb_big_square_manhattan");
 
-    pdb_build_2x2_mdist();
+    pdb_build_2x2_mdist(NULL, NULL);
 
     pdb_t *second = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
     TEST_ASSERT_NOT_NULL(second);
