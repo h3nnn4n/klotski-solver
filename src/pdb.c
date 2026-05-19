@@ -257,6 +257,58 @@ size_t pdb_count_existing_chunks(const pdb_t *pdb) {
     return count;
 }
 
+bool pdb_validate_chunk(const pdb_t *pdb, size_t chunk_index) {
+    assert(pdb != NULL);
+    assert(chunk_index < pdb->total_chunks);
+
+    char filepath[1024];
+    pdb_chunk_filepath(pdb, chunk_index, filepath, sizeof(filepath));
+
+    FILE *f = fopen(filepath, "rb");
+    if (f == NULL)
+        return false;
+
+    uint32_t header[3];
+    if (fread(header, sizeof(header), 1, f) != 1) {
+        fclose(f);
+        return false;
+    }
+
+    if (header[0] != (uint32_t)chunk_index) {
+        fclose(f);
+        return false;
+    }
+
+    if (header[2] != (uint32_t)pdb->entry_size) {
+        fclose(f);
+        return false;
+    }
+
+    size_t expected_count = pdb_chunk_entry_count(pdb, chunk_index);
+    if (header[1] != (uint32_t)expected_count) {
+        fclose(f);
+        return false;
+    }
+
+    fseek(f, 0, SEEK_END);
+    long   fsize         = ftell(f);
+    size_t expected_size = sizeof(header) + expected_count * pdb->entry_size;
+    fclose(f);
+
+    return (long)expected_size == fsize;
+}
+
+bool pdb_validate_all(const pdb_t *pdb) {
+    assert(pdb != NULL);
+
+    for (size_t ci = 0; ci < pdb->total_chunks; ci++) {
+        if (!pdb_validate_chunk(pdb, ci))
+            return false;
+    }
+
+    return true;
+}
+
 void pdb_attach_to_solver(solver_context_t *ctx) {
     assert(ctx != NULL);
 

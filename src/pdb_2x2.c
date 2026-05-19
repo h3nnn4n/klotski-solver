@@ -8,6 +8,14 @@ void pdb_build_2x2_mdist(void) {
     pdb_t *old = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
 
     pdb_t *pdb = pdb_build(PDB_BIG_SQUARE_MANHATTAN, 12, 1);
+    pdb_load_from_disk(pdb);
+
+    if (pdb->loaded_chunks == pdb->total_chunks) {
+        pdb_set_global(PDB_BIG_SQUARE_MANHATTAN, pdb);
+        if (old != NULL)
+            pdb_destroy(old);
+        return;
+    }
 
     for (int y = 0; y < 4; y++) {
         for (int x = 0; x < 3; x++) {
@@ -16,6 +24,9 @@ void pdb_build_2x2_mdist(void) {
             pdb_set_entry(pdb, index, &dist);
         }
     }
+
+    pdb->loaded        = true;
+    pdb->loaded_chunks = pdb->total_chunks;
 
     pdb_set_global(PDB_BIG_SQUARE_MANHATTAN, pdb);
 
