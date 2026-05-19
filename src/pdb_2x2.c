@@ -19,6 +19,8 @@ void pdb_build_2x2_mdist(void) {
 
     pdb_set_global(PDB_BIG_SQUARE_MANHATTAN, pdb);
 
+    pdb_save_chunk(pdb, 0);
+
     if (old != NULL)
         pdb_destroy(old);
 }

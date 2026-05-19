@@ -11,6 +11,8 @@
 
 typedef enum { PDB_BIG_SQUARE_MANHATTAN = 0, PDB_TYPE_COUNT } pdb_type_t;
 
+typedef struct _solver_context solver_context_t;
+
 typedef struct {
     pdb_type_t type;
     size_t     total_entries;
@@ -30,5 +32,15 @@ void pdb_get_entry(const pdb_t *pdb, size_t index, void *out_value);
 
 pdb_t *pdb_get_global(pdb_type_t type);
 void   pdb_set_global(pdb_type_t type, pdb_t *pdb);
+
+const char *pdb_get_type_folder_name(pdb_type_t type);
+
+size_t pdb_chunk_entry_count(const pdb_t *pdb, size_t chunk_index);
+
+bool pdb_save_chunk(const pdb_t *pdb, size_t chunk_index);
+bool pdb_load_chunk(pdb_t *pdb, size_t chunk_index);
+bool pdb_load_from_disk(pdb_t *pdb);
+
+void pdb_attach_to_solver(solver_context_t *ctx);
 
 #endif
