@@ -13,14 +13,14 @@ UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	ECHOFLAGS := -e
 	LIBS := -lm -lglfw -lpthread -ldl -lstdc++ -lpcg_random -lGL
-	LDFLAGS := -Ldeps/glfw/build/src -Ldeps/pcg-c/src
+	LDFLAGS := -Ldeps/glfw/build/src -Ldeps/pcg-c/src -Wl,-rpath,deps/glfw/build/src
 	STB_CFLAGS := -Wno-use-after-free
 endif
 ifeq ($(UNAME_S),Darwin)
 	CFLAGS_EXTRA := -Wno-unused-command-line-argument -Wno-strict-prototypes
 	CPPFLAGS_EXTRA := -Wno-unused-command-line-argument -Wno-mismatched-tags
 	LIBS := -lm -lglfw -lpthread -ldl -lstdc++ -lpcg_random -framework OpenGL
-	LDFLAGS := -Ldeps/glfw/build/src -Ldeps/pcg-c/src
+	LDFLAGS := -Ldeps/glfw/build/src -Ldeps/pcg-c/src -Wl,-rpath,deps/glfw/build/src
 	STB_CFLAGS := -Wno-unknown-warning-option -Wno-unused-parameter -Wno-sign-compare -Wno-gnu-null-pointer-arithmetic
 endif
 
@@ -87,7 +87,7 @@ debug: build
 rebuild: clean build
 
 run: $(TARGET)
-	LD_LIBRARY_PATH=deps/glfw/build/src $(CURDIR)/$(TARGET)
+	$(TARGET)
 
 # GLFW cmake build (stamp file)
 glfw: $(BUILDDIR)/.glfw_built
