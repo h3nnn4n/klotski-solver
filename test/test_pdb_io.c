@@ -19,13 +19,13 @@ static void rmrf(const char *path) {
 
 void setUp(void) {
     rmrf(TEST_DIR);
-    rmrf("cache/pdb/pdb_2x2_mdist");
+    rmrf("cache/pdb/pdb_big_square_manhattan");
     pdb_set_global(PDB_BIG_SQUARE_MANHATTAN, NULL);
 }
 
 void tearDown(void) {
     rmrf(TEST_DIR);
-    rmrf("cache/pdb/pdb_2x2_mdist");
+    rmrf("cache/pdb/pdb_big_square_manhattan");
     pdb_t *old = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
     if (old != NULL) {
         pdb_set_global(PDB_BIG_SQUARE_MANHATTAN, NULL);
@@ -63,7 +63,7 @@ void test_save_chunk_creates_directory(void) {
 
     pdb_save_chunk(pdb, 0);
 
-    TEST_ASSERT_TRUE(stat("cache/pdb/pdb_2x2_mdist", &st) == 0);
+    TEST_ASSERT_TRUE(stat("cache/pdb/pdb_big_square_manhattan", &st) == 0);
 
     pdb_destroy(pdb);
 }
