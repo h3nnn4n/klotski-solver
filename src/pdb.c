@@ -375,7 +375,10 @@ size_t pdb_get_total_size_on_disk(pdb_type_t type) {
 static void pdb_rmrf_type(pdb_type_t type) {
     char cmd[1024];
     snprintf(cmd, sizeof(cmd), "rm -rf %s/%s", PDB_CACHE_DIR, pdb_get_type_folder_name(type));
-    system(cmd);
+    if (system(cmd) != 0) {
+        fprintf(stderr, "Failed to delete cache dir: %s\n", cmd);
+        exit(1);
+    }
 }
 
 void pdb_build_all(pdb_progress_fn progress, void *user_data) {
@@ -505,7 +508,11 @@ void pdb_verify_named(const char *name) {
                 printf(" missing\n");
             } else {
                 uint32_t header[3] = {0, 0, 0};
-                fread(header, sizeof(header), 1, f);
+                if (fread(header, sizeof(header), 1, f) != 1) {
+                    printf(" header unreadable\n");
+                    fclose(f);
+                    break;
+                }
                 fclose(f);
 
                 if (header[2] != (uint32_t)info->entry_size)
