@@ -3,6 +3,7 @@ build/
 gmon.out
 imgui.ini
 .cache/
+cache/
 *.plist
 deps/glfw/build/
 bin/
