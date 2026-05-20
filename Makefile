@@ -85,8 +85,8 @@ debug: OPTIMIZATION := -g -pg -O0
 debug: build
 
 rebuild:
-	$(MAKE) clean
-	$(MAKE) build
+	@$(MAKE) --no-print-directory clean
+	@$(MAKE) --no-print-directory build
 
 run: $(TARGET)
 	$(TARGET)
