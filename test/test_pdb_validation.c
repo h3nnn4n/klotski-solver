@@ -7,22 +7,17 @@
 #include <unistd.h>
 #include <unity.h>
 
+#include "file_utils.h"
 #include "pdb.h"
 #include "pdb_2x2.h"
 
-static void rmrf(const char *path) {
-    char cmd[1024];
-    snprintf(cmd, sizeof(cmd), "rm -rf %s", path);
-    system(cmd);
-}
-
 void setUp(void) {
-    rmrf("cache/pdb/pdb_big_square_manhattan");
+    file_utils_remove_directory("cache/pdb/pdb_big_square_manhattan");
     pdb_set_global(PDB_BIG_SQUARE_MANHATTAN, NULL);
 }
 
 void tearDown(void) {
-    rmrf("cache/pdb/pdb_big_square_manhattan");
+    file_utils_remove_directory("cache/pdb/pdb_big_square_manhattan");
     pdb_t *old = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
     if (old != NULL) {
         pdb_set_global(PDB_BIG_SQUARE_MANHATTAN, NULL);
@@ -187,7 +182,7 @@ void test_2x2_rebuild_from_scratch(void) {
     pdb_t *first = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
     pdb_set_global(PDB_BIG_SQUARE_MANHATTAN, NULL);
 
-    rmrf("cache/pdb/pdb_big_square_manhattan");
+    file_utils_remove_directory("cache/pdb/pdb_big_square_manhattan");
 
     pdb_build_2x2_mdist(NULL, NULL);
 

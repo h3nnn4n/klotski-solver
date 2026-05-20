@@ -5,27 +5,22 @@
 #include <sys/stat.h>
 #include <unity.h>
 
+#include "file_utils.h"
 #include "pdb.h"
 #include "pdb_2x2.h"
 #include "solver.h"
 
 #define TEST_DIR "cache/pdb/_test_io"
 
-static void rmrf(const char *path) {
-    char cmd[1024];
-    snprintf(cmd, sizeof(cmd), "rm -rf %s", path);
-    system(cmd);
-}
-
 void setUp(void) {
-    rmrf(TEST_DIR);
-    rmrf("cache/pdb/pdb_big_square_manhattan");
+    file_utils_remove_directory(TEST_DIR);
+    file_utils_remove_directory("cache/pdb/pdb_big_square_manhattan");
     pdb_set_global(PDB_BIG_SQUARE_MANHATTAN, NULL);
 }
 
 void tearDown(void) {
-    rmrf(TEST_DIR);
-    rmrf("cache/pdb/pdb_big_square_manhattan");
+    file_utils_remove_directory(TEST_DIR);
+    file_utils_remove_directory("cache/pdb/pdb_big_square_manhattan");
     pdb_t *old = pdb_get_global(PDB_BIG_SQUARE_MANHATTAN);
     if (old != NULL) {
         pdb_set_global(PDB_BIG_SQUARE_MANHATTAN, NULL);
@@ -77,7 +72,7 @@ void test_load_nonexistent_chunk(void) {
 }
 
 void test_load_from_disk_no_folder(void) {
-    rmrf(TEST_DIR);
+    file_utils_remove_directory(TEST_DIR);
 
     pdb_t *pdb = pdb_build(PDB_BIG_SQUARE_MANHATTAN, 10, 1);
 

@@ -1,4 +1,5 @@
 #include "pdb.h"
+#include "file_utils.h"
 #include "pdb_2x2.h"
 
 #include <assert.h>
@@ -95,23 +96,7 @@ size_t pdb_chunk_entry_count(const pdb_t *pdb, size_t chunk_index) {
     return pdb->total_entries - chunk_index * pdb->entries_per_chunk;
 }
 
-static void mkdir_parents(const char *path) {
-    char  tmp[1024];
-    char *end = tmp + sizeof(tmp) - 1;
-
-    strncpy(tmp, path, sizeof(tmp) - 1);
-    tmp[sizeof(tmp) - 1] = '\0';
-
-    for (char *p = tmp + 1; *p; p++) {
-        if (*p == '/') {
-            *p = '\0';
-            if (p < end)
-                mkdir(tmp, 0755);
-            *p = '/';
-        }
-    }
-    mkdir(tmp, 0755);
-}
+static void mkdir_parents(const char *path) { file_utils_mkdir_parents(path); }
 
 static void pdb_chunk_filepath(const pdb_t *pdb, size_t chunk_index, char *buf, size_t bufsz) {
     snprintf(buf, bufsz, "%s/%s/%0*zu", PDB_CACHE_DIR, pdb_get_type_folder_name(pdb->type), PDB_CHUNK_PAD, chunk_index);
@@ -373,12 +358,9 @@ size_t pdb_get_total_size_on_disk(pdb_type_t type) {
 }
 
 static void pdb_rmrf_type(pdb_type_t type) {
-    char cmd[1024];
-    snprintf(cmd, sizeof(cmd), "rm -rf %s/%s", PDB_CACHE_DIR, pdb_get_type_folder_name(type));
-    if (system(cmd) != 0) {
-        fprintf(stderr, "Failed to delete cache dir: %s\n", cmd);
-        exit(1);
-    }
+    char path[1024];
+    snprintf(path, sizeof(path), "%s/%s", PDB_CACHE_DIR, pdb_get_type_folder_name(type));
+    file_utils_remove_directory(path);
 }
 
 void pdb_build_all(pdb_progress_fn progress, void *user_data) {
