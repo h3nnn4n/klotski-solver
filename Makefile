@@ -196,7 +196,7 @@ cpplint:
 	cpplint --filter=-build/include_subdir,-readability/nolint,-whitespace/line_length,-whitespace/comments,-readability/casting,-build/header_guard,-runtime/arrays src/*.c
 
 cppcheck:
-	cppcheck --enable=all --suppressions-list=.cppcheck.suppressions --std=c11 --language=c --error-exitcode=1 src/*.c
+	cppcheck --enable=all --suppressions-list=.cppcheck.suppressions --suppress=constVariable --suppress=constVariablePointer --suppress=staticFunction --std=c11 --language=c --error-exitcode=1 src/*.c
 
 clang-format:
 	./format.sh

@@ -117,7 +117,8 @@ void test_validate_truncated_file(void) {
     char filepath[1024];
     snprintf(filepath, sizeof(filepath), "%s/%s/%04zu", PDB_CACHE_DIR, pdb_get_type_folder_name(pdb->type), (size_t)0);
 
-    truncate(filepath, 13);
+    if (truncate(filepath, 13) != 0)
+        TEST_FAIL_MESSAGE("truncate failed");
 
     TEST_ASSERT_FALSE(pdb_validate_chunk(pdb, 0));
 
