@@ -84,7 +84,9 @@ build: glfw pcg pcg_full $(TARGET)
 debug: OPTIMIZATION := -g -pg -O0
 debug: build
 
-rebuild: clean build
+rebuild:
+	$(MAKE) clean
+	$(MAKE) build
 
 run: $(TARGET)
 	$(TARGET)
